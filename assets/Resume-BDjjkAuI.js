@@ -25,73 +25,69 @@ const ResumeSection = () => {
             ],
           }),
           e.jsxs("div", {
-            className: "grid md:grid-cols-2 gap-12 md:gap-20 mb-12",
+            className: "grid md:grid-cols-2 gap-12 md:gap-20 mb-12 items-stretch",
             children: [
               e.jsxs("div", {
-                className: "relative p-6 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl shadow-xl overflow-hidden group",
+                className: "relative p-6 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl shadow-xl overflow-hidden group h-full flex flex-col",
                 children: [
                   e.jsx("div", { className: "absolute inset-0 bg-gradient-to-br from-white/[0.08] via-transparent to-transparent pointer-events-none" }),
                   e.jsx("div", { className: "absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent" }),
                   e.jsxs("div", {
-                    className: "relative z-10",
+                    className: "relative z-10 flex-1",
                     children: [
                       e.jsxs("div", {
-                        className: "flex items-center mb-4",
+                        className: "flex items-center gap-3 mb-5",
                         children: [
                           e.jsx("div", {
                             className: "w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mr-3 text-primary",
                             children: "B",
                           }),
-                          e.jsx("h3", { className: "text-xl font-bold text-white", children: "Bachelor of Engineering" }),
+                          e.jsx("h3", { className: "text-xl font-bold text-white leading-tight", children: "Bachelor of Engineering" }),
                         ],
                       }),
                       e.jsxs("div", {
-                        className: "mb-4",
+                        className: "mb-5",
                         children: [
                           e.jsx("h4", { className: "text-white font-medium", children: "Computer Science" }),
                           e.jsx("span", { className: "text-primary text-sm font-semibold mb-2 block", children: "2024 – 2028" }),
                         ],
                       }),
                       e.jsx("p", {
-                        className: "text-gray-400 text-sm",
-                        children: "M Kumarasamy College of Engineering, Karur, Tamil Nadu | CGPA: 7.7 / 10.0 (Semesters 1–2)",
-                      }),
-                      e.jsx("p", {
-                        className: "text-gray-400 text-sm mt-4",
-                        children: "Relevant Coursework: Software Development, Data Structures, Database Management, Computer Architecture, Networking, Cyber Security, Web Development",
+                        className: "text-gray-400 text-sm leading-7",
+                        children: "M Kumarasamy College of Engineering, Karur, Tamil Nadu",
                       }),
                     ],
                   }),
                 ],
               }),
               e.jsxs("div", {
-                className: "relative p-6 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl shadow-xl overflow-hidden group",
+                className: "relative p-6 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl shadow-xl overflow-hidden group h-full flex flex-col",
                 children: [
                   e.jsx("div", { className: "absolute inset-0 bg-gradient-to-br from-white/[0.08] via-transparent to-transparent pointer-events-none" }),
                   e.jsx("div", { className: "absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-secondary/50 to-transparent" }),
                   e.jsxs("div", {
-                    className: "relative z-10",
+                    className: "relative z-10 flex-1",
                     children: [
                       e.jsxs("div", {
-                        className: "flex items-center mb-4",
+                        className: "flex items-center gap-3 mb-5",
                         children: [
                           e.jsx("div", {
                             className: "w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mr-3 text-primary",
                             children: "XII",
                           }),
-                          e.jsx("h3", { className: "text-xl font-bold text-white", children: "Higher Secondary" }),
+                          e.jsx("h3", { className: "text-xl font-bold text-white leading-tight", children: "Higher Secondary" }),
                         ],
                       }),
                       e.jsxs("div", {
-                        className: "mb-4",
+                        className: "mb-5",
                         children: [
                           e.jsx("h4", { className: "text-white font-medium", children: "Science Stream" }),
                           e.jsx("span", { className: "text-primary text-sm font-semibold mb-2 block", children: "2023 – 2024" }),
                         ],
                       }),
                       e.jsx("p", {
-                        className: "text-gray-400 text-sm",
-                        children: "Mishra Shiksha Niketan Higher Secondary School, Arnia, Jammu | Percentage: 75%",
+                        className: "text-gray-400 text-sm leading-7",
+                        children: "Mishra Shiksha Niketan Higher Secondary School, Arnia, Jammu",
                       }),
                     ],
                   }),
