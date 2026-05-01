@@ -36,6 +36,23 @@
     h1 { margin: 12px 0 10px; font-size: clamp(2.3rem, 5vw, 4.8rem); line-height: .95; letter-spacing: -0.06em; }
     .sub { max-width: 760px; color: var(--muted); font-size: 1.05rem; line-height: 1.7; }
     .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; margin-top: 34px; }
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+      .card h2 { font-size: 1.25rem; }
+    }
+    @media (max-width: 480px) {
+      .wrap { padding: 24px 16px 48px; }
+      .topbar { margin-bottom: 24px; }
+      .kicker { font-size: 0.7rem; letter-spacing: .18em; }
+      h1 { font-size: clamp(1.8rem, 6vw, 3rem); margin: 8px 0; }
+      .sub { font-size: 0.95rem; }
+      .thumb { height: 150px; padding: 12px; }
+      .card-body { padding: 16px; }
+      .meta { font-size: 0.7rem; }
+      .card h2 { margin: 8px 0; font-size: 1.1rem; }
+      .card p { font-size: 0.9rem; }
+      .link { margin-top: 14px; font-size: 0.7rem; }
+    }
     .card { overflow: hidden; position: relative; background: linear-gradient(180deg, rgba(15,23,42,.95), rgba(2,6,23,.95)); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.28); }
     .card::before { content: ""; position:absolute; inset:0; background: linear-gradient(180deg, rgba(244,81,30,0.12), transparent 22%); pointer-events:none; }
     .thumb { height: 210px; display:flex; align-items:center; justify-content:center; padding: 16px; background: rgba(15,23,42,0.75); border-bottom: 1px solid rgba(255,255,255,0.08); }
@@ -47,8 +64,9 @@
     .link { display:inline-flex; margin-top: 18px; color: white; font-weight: 700; text-transform: uppercase; letter-spacing: .16em; font-size: .78rem; }
     .link span { color: var(--accent); }
     @media (max-width: 640px) {
-      .topbar { flex-direction: column; align-items: flex-start; }
-      .thumb { height: 180px; }
+      .topbar { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .back { width: 100%; text-align: center; }
+      .thumb { height: 160px; }
     }
   </style>
 </head>
@@ -64,7 +82,7 @@
 
     <section class="hero">
       <div class="kicker">Projects</div>
-      <h1>Web Development Projects</h1>
+      <h1>Projects</h1>
       <p class="sub">A separate page for the work highlighted from the main portfolio. Click back to return to the home page.</p>
     </section>
 
