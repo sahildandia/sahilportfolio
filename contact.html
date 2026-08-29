@@ -91,7 +91,12 @@
 
       <!-- Right: Actions -->
       <div class="flex items-center gap-3 md:gap-4">
-        <button class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-600 shadow-sm border border-gray-100 hover:bg-gray-50">
+        <!-- Mobile Menu Toggle -->
+        <button id="mobileMenuBtn" class="lg:hidden w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-900 shadow-sm border border-gray-100 hover:bg-gray-50">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+        <!-- Dark Mode Toggle (Desktop) -->
+        <button class="hidden lg:flex w-10 h-10 bg-white rounded-full items-center justify-center text-slate-600 shadow-sm border border-gray-100 hover:bg-gray-50">
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
         </button>
         <a href="mailto:dandiasahil@gmail.com" class="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition flex items-center gap-2">
@@ -326,5 +331,47 @@
     </div>
   </div>
 
+
+  <!-- Mobile Menu Overlay -->
+  <div id="mobileMenu" class="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-[100] flex flex-col justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
+    <button id="closeMenuBtn" class="absolute top-6 right-6 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+    
+    <nav class="flex flex-col items-center gap-8 text-3xl font-black text-white">
+      <a href="index.html" class="hover:text-primary transition-colors">Home</a>
+      <a href="about.html" class="hover:text-primary transition-colors">About</a>
+      <a href="projects.html" class="hover:text-primary transition-colors">Projects</a>
+      <a href="experience.html" class="hover:text-primary transition-colors">Experience</a>
+      <a href="contact.html" class="hover:text-primary transition-colors">Contact</a>
+    </nav>
+  </div>
+
+  <script>
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    if (mobileMenuBtn && closeMenuBtn && mobileMenu) {
+      function toggleMenu() {
+        const isOpen = mobileMenu.classList.contains('opacity-0');
+        if (isOpen) {
+          mobileMenu.classList.remove('opacity-0', 'pointer-events-none');
+          mobileMenu.classList.add('opacity-100', 'pointer-events-auto');
+        } else {
+          mobileMenu.classList.remove('opacity-100', 'pointer-events-auto');
+          mobileMenu.classList.add('opacity-0', 'pointer-events-none');
+        }
+      }
+
+      mobileMenuBtn.addEventListener('click', toggleMenu);
+      closeMenuBtn.addEventListener('click', toggleMenu);
+      
+      // Close menu when clicking a link
+      const links = mobileMenu.querySelectorAll('a');
+      links.forEach(link => link.addEventListener('click', toggleMenu));
+    }
+  </script>
 </body>
+
 </html>
