@@ -29,22 +29,14 @@
   <!-- Aesthetic Styles -->
   <style>
     body {
-      background: linear-gradient(-45deg, #0f172a, #1e293b, #3b072c, #020617);
-      background-size: 400% 400%;
-      animation: gradientBG 15s ease infinite;
+      background-color: #020617; /* Slate 950 deep black */
       color: #e5e7eb;
       min-height: 100vh;
       overflow-x: hidden;
     }
     
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    
     .glass-panel {
-      background: rgba(15, 23, 42, 0.4);
+      background: rgba(15, 23, 42, 0.5);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -52,7 +44,7 @@
     
     .glass-card {
       background: rgba(30, 41, 59, 0.4);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.05);
       transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
@@ -61,7 +53,7 @@
       transform: translateY(-8px);
       box-shadow: 0 20px 40px rgba(244, 81, 30, 0.15);
       border-color: rgba(244, 81, 30, 0.3);
-      background: rgba(30, 41, 59, 0.6);
+      background: rgba(30, 41, 59, 0.7);
     }
 
     .skill-tag {
@@ -74,14 +66,28 @@
       background: rgba(244, 81, 30, 0.2);
       transform: scale(1.05);
     }
+    
+    /* Overlay for the video to ensure text is readable */
+    .video-overlay {
+      background: linear-gradient(135deg, rgba(2,6,23,0.8) 0%, rgba(15,23,42,0.6) 100%);
+    }
   </style>
 </head>
 <body class="antialiased relative pb-20 selection:bg-brand selection:text-white">
 
-  <!-- Aesthetic Ambient Background Blobs -->
+  <!-- Video Background -->
+  <video autoplay loop muted playsinline class="fixed inset-0 w-full h-full object-cover -z-30 opacity-60">
+    <!-- Using a high-quality abstract technology/particles loop -->
+    <source src="https://assets.mixkit.co/videos/preview/mixkit-abstract-technology-network-connection-background-24534-large.mp4" type="video/mp4">
+  </video>
+  
+  <!-- Video Overlay Gradient -->
+  <div class="fixed inset-0 video-overlay -z-20 pointer-events-none"></div>
+
+  <!-- Animated Glowing Accents -->
   <div class="fixed inset-0 pointer-events-none -z-10">
-    <div class="absolute top-[10%] left-[10%] w-[30rem] h-[30rem] bg-brand/10 rounded-full mix-blend-screen filter blur-[100px] animate-[pulse_8s_ease-in-out_infinite_alternate]"></div>
-    <div class="absolute bottom-[10%] right-[10%] w-[40rem] h-[40rem] bg-purple-600/10 rounded-full mix-blend-screen filter blur-[120px] animate-[pulse_10s_ease-in-out_infinite_alternate-reverse]"></div>
+    <div class="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-brand/10 rounded-full mix-blend-screen filter blur-[120px] animate-[pulse_8s_ease-in-out_infinite_alternate]"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-indigo-600/10 rounded-full mix-blend-screen filter blur-[120px] animate-[pulse_10s_ease-in-out_infinite_alternate-reverse]"></div>
   </div>
 
   <!-- Navigation -->
