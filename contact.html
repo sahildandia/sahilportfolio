@@ -1,359 +1,70 @@
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Contact | Sahil Dandia</title>
-  
-  <!-- Tailwind CSS via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Plus Jakarta Sans Font for matching the clean aesthetic -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { 
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-          },
-          colors: { 
-            primary: '#5c45fd',
-            surface: '#f4f7fb',
-          }
-        }
-      }
-    }
-  </script>
-  
-  <style>
-    body {
-      background-color: #f4f7fb;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
-      overflow: hidden; 
-    }
-    
-    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scroll::-webkit-scrollbar-track { background: transparent; }
-    .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    
-    .card-shadow {
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    }
-  </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f6f2">
+  <meta name="description" content="Sahil Kumar — computer science student, developer, and Google Student Ambassador. Explore projects in web development, databases, and explainable computer vision.">
+  <title>Sahil Kumar — Developer & Creative Thinker</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/portfolio.css">
+  <script src="assets/portfolio.js" defer></script>
 </head>
-<body class="flex items-center justify-center antialiased text-slate-800">
-
-  <!-- Main App Dashboard Container (Full Screen, No Borders) -->
-  <div class="w-full h-screen max-w-full bg-surface flex flex-col overflow-hidden">
-    
-    <!-- Top Navbar -->
-        <header class="h-20 bg-white border-b border-gray-100 flex items-center px-4 md:px-6 shrink-0 z-20">
-      
-      <!-- Clustered Header Area -->
-      <div class="flex items-center gap-4">
-        
-        <!-- Mac Window Controls -->
-        <div class="flex gap-2">
-          <div class="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
-          <div class="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
-          <div class="w-3 h-3 rounded-full bg-[#27c93f]"></div>
-        </div>
-        
-        <!-- Divider -->
-        <div class="w-px h-6 bg-gray-200 ml-1 mr-1"></div>
-        
-        <!-- Logo -->
-        <div class="bg-slate-900 text-white w-9 h-9 rounded-xl flex items-center justify-center font-black tracking-tighter shadow-md">
-          <span class="text-white">S</span><span class="text-primary">D.</span>
-        </div>
-        
-        <!-- Universal Menu Toggle -->
-        <button id="mobileMenuBtn" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-900 shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
-        
-        <!-- Let's Connect -->
-        <a href="contact.html" class="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition flex items-center gap-2">
-          Let's Connect 
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-        </a>
-        
-      </div>
-    </header>
-
-    <!-- Main Content Layout -->
-    <div class="flex flex-1 overflow-hidden">
-      
-      <!-- Icon Sidebar (Left) -->
-      <aside class="w-[80px] h-full bg-white border-r border-gray-100 py-6 px-2 shrink-0 flex flex-col items-center gap-4 hidden md:flex overflow-y-auto custom-scroll z-10">
-        <a href="index.html" class="w-full aspect-square bg-transparent text-gray-400 rounded-2xl flex flex-col items-center justify-center gap-1 hover:bg-gray-50 hover:text-slate-900 transition-all hover:shadow-sm">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-          <span class="text-[9px] font-bold">Home</span>
-        </a>
-        <a href="https://github.com/sahildandia" target="_blank" class="w-full aspect-square bg-transparent text-gray-400 rounded-2xl flex flex-col items-center justify-center gap-1 hover:bg-gray-50 hover:text-slate-900 transition-all hover:shadow-sm">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
-          <span class="text-[9px] font-bold">GitHub</span>
-        </a>
-        <a href="#" class="w-full aspect-square bg-transparent text-gray-400 rounded-2xl flex flex-col items-center justify-center gap-1 hover:bg-gray-50 hover:text-slate-900 transition-all hover:shadow-sm">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-          <span class="text-[9px] font-bold">LinkedIn</span>
-        </a>
-        <a href="mailto:dandiasahil@gmail.com" class="w-full aspect-square bg-transparent text-gray-400 rounded-2xl flex flex-col items-center justify-center gap-1 hover:bg-gray-50 hover:text-slate-900 transition-all hover:shadow-sm">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-          <span class="text-[9px] font-bold">Email</span>
-        </a>
-        
-        <div class="mt-auto"></div>
-        <a href="#" class="w-full aspect-square bg-transparent text-gray-400 rounded-2xl flex flex-col items-center justify-center gap-1 hover:bg-gray-50 hover:text-slate-900 transition-all hover:shadow-sm">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-          <span class="text-[9px] font-bold text-center">Download<br>CV</span>
-        </a>
-      </aside>
-
-      <!-- Scrollable Contact Content -->
-      <main class="flex-1 overflow-y-auto custom-scroll p-4 md:p-8 pb-12 bg-surface">
-        <div class="max-w-[1400px] mx-auto">
-          
-          <!-- Top Main Row -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
-            <!-- Left: Hero Text & Socials -->
-            <div class="flex flex-col">
-              
-              <!-- Title Block -->
-              <div class="mb-8 pl-2">
-                <span class="inline-block bg-indigo-50 text-primary text-[10px] font-extrabold px-3 py-1.5 rounded-lg mb-5 border border-indigo-100 shadow-sm">Get In Touch</span>
-                
-                <h1 class="text-4xl md:text-[3.5rem] font-black text-slate-900 leading-[1.15] mb-5 tracking-tighter">
-                  Let's build <span class="text-primary">something</span> 🚀<br>amazing together!
-                </h1>
-                
-                <p class="text-sm font-semibold text-slate-600 max-w-md leading-relaxed">
-                  I'm always open to discussing new projects, creative ideas or opportunities to be part of your vision.
-                </p>
-              </div>
-              
-              <!-- Contact Cards Grid -->
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                <!-- Email Card -->
-                <a href="mailto:sahildandia@gmail.com" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 card-shadow hover:-translate-y-1 transition text-center flex flex-col items-center gap-2 group relative overflow-hidden">
-                  <div class="w-10 h-10 rounded-full bg-indigo-50 text-primary flex items-center justify-center mb-1 text-lg">✉️</div>
-                  <h4 class="text-[11px] font-extrabold text-slate-900">Email</h4>
-                  <p class="text-[8px] font-bold text-gray-500 truncate w-full">sahildandia@gmail.com</p>
-                  <span class="text-primary font-bold text-[10px] mt-1 group-hover:translate-x-1 group-hover:-translate-y-1 transition">↗</span>
-                </a>
-                
-                <!-- WhatsApp Card -->
-                <a href="https://wa.me/917051381035" target="_blank" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 card-shadow hover:-translate-y-1 transition text-center flex flex-col items-center gap-2 group relative overflow-hidden">
-                  <div class="w-10 h-10 rounded-full bg-green-50 text-green-500 flex items-center justify-center mb-1 text-lg">💬</div>
-                  <h4 class="text-[11px] font-extrabold text-slate-900">WhatsApp</h4>
-                  <p class="text-[8px] font-bold text-gray-500 truncate w-full">+91 7051381035</p>
-                  <span class="text-green-500 font-bold text-[10px] mt-1 group-hover:translate-x-1 group-hover:-translate-y-1 transition">↗</span>
-                </a>
-                
-                <!-- LinkedIn Card -->
-                <a href="https://linkedin.com/in/sahildandia" target="_blank" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 card-shadow hover:-translate-y-1 transition text-center flex flex-col items-center gap-2 group relative overflow-hidden">
-                  <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-1 text-lg">💼</div>
-                  <h4 class="text-[11px] font-extrabold text-slate-900">LinkedIn</h4>
-                  <p class="text-[8px] font-bold text-gray-500 truncate w-full">in/sahildandia</p>
-                  <span class="text-blue-500 font-bold text-[10px] mt-1 group-hover:translate-x-1 group-hover:-translate-y-1 transition">↗</span>
-                </a>
-                
-                <!-- Instagram Card -->
-                <a href="#" target="_blank" class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 card-shadow hover:-translate-y-1 transition text-center flex flex-col items-center gap-2 group relative overflow-hidden">
-                  <div class="w-10 h-10 rounded-full bg-pink-50 text-pink-500 flex items-center justify-center mb-1 text-lg">📸</div>
-                  <h4 class="text-[11px] font-extrabold text-slate-900">Instagram</h4>
-                  <p class="text-[8px] font-bold text-gray-500 truncate w-full">@code.with.sahil</p>
-                  <span class="text-pink-500 font-bold text-[10px] mt-1 group-hover:translate-x-1 group-hover:-translate-y-1 transition">↗</span>
-                </a>
-              </div>
-              
-              <!-- Social Connection Wavy Block -->
-              <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 card-shadow flex-1 flex flex-col justify-center">
-                <h3 class="font-extrabold text-slate-900 text-sm mb-1">Let's Connect Everywhere</h3>
-                <p class="text-[10px] font-semibold text-gray-500 mb-8">Find me on these platforms and let's connect.</p>
-                
-                <!-- Wavy Line Interface -->
-                <div class="relative flex justify-between items-center z-10 px-4 md:px-8">
-                  <!-- The dashed line connecting the dots -->
-                  <div class="absolute inset-0 top-1/2 border-t-2 border-dashed border-gray-200 -z-10 w-[80%] mx-auto transform -translate-y-1/2 rounded-[50%] h-8 border-b-0 border-l-0 border-r-0"></div>
-                  
-                  <a href="https://github.com/sahildandia" class="w-12 h-12 bg-white rounded-full border-2 border-gray-100 shadow-sm flex items-center justify-center hover:scale-110 transition-transform text-slate-800 z-10 hover:border-slate-800">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
-                  </a>
-                  
-                  <a href="#" class="w-12 h-12 bg-white rounded-full border-2 border-blue-100 shadow-sm flex items-center justify-center hover:scale-110 transition-transform text-blue-600 z-10 hover:border-blue-500 translate-y-4">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                  </a>
-                  
-                  <a href="#" class="w-12 h-12 bg-white rounded-full border-2 border-pink-100 shadow-sm flex items-center justify-center hover:scale-110 transition-transform text-pink-600 z-10 hover:border-pink-500 -translate-y-3">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                  </a>
-                  
-                  <a href="mailto:dandiasahil@gmail.com" class="w-12 h-12 bg-white rounded-full border-2 border-primary/20 shadow-sm flex items-center justify-center hover:scale-110 transition-transform text-primary z-10 hover:border-primary translate-y-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Right: Contact Form -->
-            <div class="bg-white rounded-[2rem] p-8 shadow-sm border border-gray-100 card-shadow h-full flex flex-col relative overflow-hidden">
-              <div class="flex items-center gap-3 mb-6">
-                <div class="w-12 h-12 rounded-xl bg-indigo-50 text-primary flex items-center justify-center shadow-inner">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                </div>
-                <div>
-                  <h3 class="font-extrabold text-slate-900 text-lg">Send Me a Message</h3>
-                  <p class="text-[10px] font-semibold text-gray-500 mt-0.5">Fill out the form and I'll get back to you as soon as possible.</p>
-                </div>
-              </div>
-              
-              <form class="flex-1 flex flex-col gap-5 mt-2">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div>
-                    <label class="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wide">Your Name</label>
-                    <input type="text" placeholder="Enter your name" class="w-full bg-surface border border-gray-100 rounded-xl px-4 py-3.5 text-xs font-semibold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder-gray-400 transition shadow-sm">
-                  </div>
-                  <div>
-                    <label class="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wide">Email Address</label>
-                    <input type="email" placeholder="Enter your email" class="w-full bg-surface border border-gray-100 rounded-xl px-4 py-3.5 text-xs font-semibold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder-gray-400 transition shadow-sm">
-                  </div>
-                </div>
-                <div>
-                  <label class="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wide">Subject</label>
-                  <input type="text" placeholder="What's this about?" class="w-full bg-surface border border-gray-100 rounded-xl px-4 py-3.5 text-xs font-semibold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder-gray-400 transition shadow-sm">
-                </div>
-                <div class="flex-1">
-                  <label class="block text-[10px] font-extrabold text-slate-700 mb-1.5 uppercase tracking-wide">Your Message</label>
-                  <textarea placeholder="Write your message here..." class="w-full h-full min-h-[140px] bg-surface border border-gray-100 rounded-xl px-4 py-3.5 text-xs font-semibold focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder-gray-400 transition resize-none shadow-sm"></textarea>
-                </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-primary to-indigo-500 text-white font-bold text-xs py-4 rounded-xl shadow-lg shadow-primary/30 hover:opacity-90 transition mt-2 flex items-center justify-center gap-2">
-                  Send Message 
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                </button>
-              </form>
-            </div>
-            
-          </div>
-          
-          <!-- Bottom Row: Availability & Location -->
-          <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-6">
-            
-            <!-- Left card (Availability) -->
-            <div class="lg:col-span-3 bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 card-shadow flex flex-col justify-center">
-               <div class="flex items-center gap-2 mb-5">
-                 <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
-                 <h3 class="font-extrabold text-slate-900 text-sm">I'm Currently Available For</h3>
-               </div>
-               
-               <div class="flex flex-wrap gap-3 mb-6">
-                 <span class="bg-green-50 text-green-600 font-extrabold text-[10px] px-4 py-2 rounded-full border border-green-100 shadow-sm">Full-time Opportunities</span>
-                 <span class="bg-purple-50 text-purple-600 font-extrabold text-[10px] px-4 py-2 rounded-full border border-purple-100 shadow-sm">Freelance Projects</span>
-                 <span class="bg-orange-50 text-orange-600 font-extrabold text-[10px] px-4 py-2 rounded-full border border-orange-100 shadow-sm">Internships</span>
-                 <span class="bg-blue-50 text-blue-600 font-extrabold text-[10px] px-4 py-2 rounded-full border border-blue-100 shadow-sm">Collaborations</span>
-               </div>
-               
-               <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mt-auto">
-                 <p class="text-[11px] font-semibold text-gray-500 max-w-sm leading-relaxed">
-                   Drop a message and let's create something great together. I usually respond within 24-48 hours.
-                 </p>
-                 <button class="bg-white border border-gray-200 text-slate-700 font-extrabold text-[10px] px-5 py-2.5 rounded-xl hover:bg-gray-50 transition shadow-sm flex items-center gap-2 shrink-0">
-                   Download Resume 📥
-                 </button>
-               </div>
-            </div>
-            
-            <!-- Right card (Location) -->
-            <div class="lg:col-span-2 bg-white rounded-[2rem] p-6 md:p-8 shadow-sm border border-gray-100 card-shadow relative overflow-hidden flex items-center min-h-[160px]">
-              
-              <!-- Subtle World Map Background -->
-              <div class="absolute right-[-40px] top-1/2 -translate-y-1/2 opacity-20 pointer-events-none w-[70%] z-0">
-                <svg viewBox="0 0 1000 500" fill="currentColor" class="text-primary w-full h-full">
-                  <path d="M141.6,290.4c-0.8,0.3-1.4,1-1.4,1.8s0.6,1.5,1.4,1.8c0.8-0.3,1.4-1,1.4-1.8S142.4,290.7,141.6,290.4z M176,285.3c-0.8,0.3-1.4,1-1.4,1.8s0.6,1.5,1.4,1.8c0.8-0.3,1.4-1,1.4-1.8C177.4,286.3,176.8,285.6,176,285.3z M157.9,292.1c-0.8,0.3-1.4,1-1.4,1.8s0.6,1.5,1.4,1.8c0.8-0.3,1.4-1,1.4-1.8C159.3,293.1,158.7,292.4,157.9,292.1z M861,164.6c-0.8,0.3-1.4,1-1.4,1.8s0.6,1.5,1.4,1.8c0.8-0.3,1.4-1,1.4-1.8S861.8,164.9,861,164.6z M869.6,168c-0.8,0.3-1.4,1-1.4,1.8s0.6,1.5,1.4,1.8c0.8-0.3,1.4-1,1.4-1.8C871,169,870.4,168.3,869.6,168z" />
-                  <!-- Simplified pattern representing dots map for aesthetic -->
-                  <circle cx="200" cy="150" r="2"/><circle cx="210" cy="150" r="2"/><circle cx="220" cy="150" r="2"/>
-                  <circle cx="200" cy="160" r="2"/><circle cx="210" cy="160" r="2"/><circle cx="220" cy="160" r="2"/><circle cx="230" cy="160" r="2"/>
-                  <circle cx="700" cy="180" r="2"/><circle cx="710" cy="180" r="2"/><circle cx="720" cy="180" r="2"/>
-                  <circle cx="730" cy="250" r="3" fill="#5c45fd"/><circle cx="730" cy="250" r="8" fill="#5c45fd" opacity="0.3"/> <!-- Pin for India -->
-                  <circle cx="720" cy="240" r="2"/><circle cx="740" cy="260" r="2"/><circle cx="750" cy="270" r="2"/>
-                  <circle cx="720" cy="260" r="2"/><circle cx="730" cy="270" r="2"/><circle cx="740" cy="280" r="2"/>
-                </svg>
-              </div>
-              
-              <div class="z-10">
-                <div class="flex items-center gap-2 mb-2">
-                  <span class="text-primary text-xl flex items-center justify-center w-8 h-8 rounded-full bg-indigo-50 shadow-inner">📍</span>
-                  <h3 class="font-extrabold text-slate-900 text-sm">Location</h3>
-                </div>
-                <p class="text-[11px] font-bold text-gray-500 leading-relaxed ml-10">
-                  Jabalpur, Madhya Pradesh<br>India
-                </p>
-              </div>
-            </div>
-            
-          </div>
-          
-          <!-- Footer -->
-          <footer class="flex flex-col sm:flex-row items-center justify-between mt-8 text-[10px] font-extrabold text-gray-400 gap-4">
-            <div class="flex items-center gap-1.5"><span class="text-pink-500 text-sm">🤍</span> Thank you for visiting! I'll try to get back to you as soon as possible.</div>
-            <div>© 2024 Sahil Dandia. All rights reserved.</div>
-          </footer>
-
-        </div>
-      </main>
-      
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="index.html#home" aria-label="Sahil Kumar home">sk<span>™</span></a>
+      <nav class="nav" id="main-nav" aria-label="Main navigation">
+        <a href="#home" class="active" aria-current="location">Home</a><a href="#work">Work</a><a href="#about">About</a><a href="#experience">Journey</a><a href="#contact">Contact</a>
+      </nav>
+      <div class="header-actions"><button class="icon-button" id="theme-toggle" type="button" aria-label="Switch to dark theme" aria-pressed="false">☾</button><a class="header-contact" href="#contact">Let’s talk <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12" stroke="currentColor" stroke-width="1.5"/></svg></a><button class="icon-button menu-toggle" id="menu-toggle" type="button" aria-controls="main-nav" aria-expanded="false" aria-label="Open navigation">☰</button></div>
     </div>
-  </div>
-
-
-  <!-- Mobile Menu Overlay -->
-  <div id="mobileMenu" class="fixed inset-0 bg-slate-900/95 backdrop-blur-md z-[100] flex flex-col justify-center items-center opacity-0 pointer-events-none transition-opacity duration-300">
-    <button id="closeMenuBtn" class="absolute top-6 right-6 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-    </button>
-    
-    <nav class="flex flex-col items-center gap-8 text-3xl font-black text-white">
-      <a href="index.html" class="hover:text-primary transition-colors">Home</a>
-      <a href="about.html" class="hover:text-primary transition-colors">About</a>
-      <a href="projects.html" class="hover:text-primary transition-colors">Projects</a>
-      <a href="experience.html" class="hover:text-primary transition-colors">Experience</a>
-      <a href="contact.html" class="hover:text-primary transition-colors">Contact</a>
-    </nav>
-  </div>
-
-  <script>
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const closeMenuBtn = document.getElementById('closeMenuBtn');
-    const mobileMenu = document.getElementById('mobileMenu');
-
-    if (mobileMenuBtn && closeMenuBtn && mobileMenu) {
-      function toggleMenu() {
-        const isOpen = mobileMenu.classList.contains('opacity-0');
-        if (isOpen) {
-          mobileMenu.classList.remove('opacity-0', 'pointer-events-none');
-          mobileMenu.classList.add('opacity-100', 'pointer-events-auto');
-        } else {
-          mobileMenu.classList.remove('opacity-100', 'pointer-events-auto');
-          mobileMenu.classList.add('opacity-0', 'pointer-events-none');
-        }
-      }
-
-      mobileMenuBtn.addEventListener('click', toggleMenu);
-      closeMenuBtn.addEventListener('click', toggleMenu);
-      
-      // Close menu when clicking a link
-      const links = mobileMenu.querySelectorAll('a');
-      links.forEach(link => link.addEventListener('click', toggleMenu));
-    }
-  </script>
+  </header>
+  <main id="main">
+    <section class="hero" id="home" aria-labelledby="hero-title">
+      <div class="container"><div class="hero-layout">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Developer. Learner. Problem solver.</div>
+          <h1 id="hero-title">Turning ideas<br>into <em>real</em><br>experiences<span style="color:var(--accent)">.</span></h1>
+          <p class="hero-description">Hey, I’m <strong>Sahil Kumar</strong> — a computer science student building thoughtful web experiences and practical solutions, one idea at a time.</p>
+          <div class="hero-buttons"><a class="button primary" href="#work">Explore my work <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12" stroke="currentColor" stroke-width="1.5"/></svg></a><a class="button" href="assets/Sahil-Kumar-Resume.docx" download="Sahil-Kumar-Resume.docx">Download résumé <span class="arrow" aria-hidden="true">↓</span></a></div>
+          <div class="hero-note"><span aria-hidden="true"></span> Based in Jammu, India · Building beyond boundaries</div>
+        </div>
+        <div class="portrait-scene" aria-label="Portrait of Sahil Kumar in a three-dimensional composition">
+          <div class="scene-grid" aria-hidden="true"></div><svg class="spark" width="56" height="56" viewBox="0 0 56 56" aria-hidden="true"><g stroke="currentColor" stroke-width="5" stroke-linecap="round"><path d="M28 5v46M5 28h46M12 12l32 32M12 44l32-32"/></g></svg>
+          <div class="portrait-stage" data-tilt><div class="orange-shape" aria-hidden="true"></div><div class="orbit second" aria-hidden="true"></div><div class="portrait-frame"><img class="portrait" src="assets/sahil-portrait.png" alt="Sahil Kumar wearing a black blazer and white shirt" width="914" height="1200" fetchpriority="high"></div><div class="orbit" aria-hidden="true"></div><div class="floating-card code-card" aria-hidden="true"><div class="mini-dots"><i></i><i></i><i></i></div><b>const</b> developer = {<br>&nbsp; name: <b>"Sahil"</b>,<br>&nbsp; mindset: <b>"keep building"</b><br>};</div><div class="floating-card role-card"><div class="role-icon" aria-hidden="true">&lt;/&gt;</div><div><strong>Made of curiosity.</strong><small>Powered by code & a little coffee.</small></div></div></div>
+          <span class="scene-label">A little perspective changes everything</span>
+        </div>
+      </div><div class="scroll-line"><a href="#work">SCROLL TO EXPLORE <span aria-hidden="true">↓</span></a><span>CODE WITH PURPOSE. CREATE WITH CARE.</span></div></div>
+    </section>
+    <div class="tech-strip" aria-label="Technologies I work with"><div class="container tech-inner"><span class="tech-caption">My building<br>blocks</span><span class="tech-name"><small aria-hidden="true">{ }</small> Java</span><span class="tech-name"><small aria-hidden="true">&lt;/&gt;</small> HTML & CSS</span><span class="tech-name"><small aria-hidden="true">◉</small> MySQL</span><span class="tech-name"><small aria-hidden="true">⌘</small> Python</span><span class="tech-name"><small aria-hidden="true">◇</small> OpenCV</span><span class="tech-name"><small aria-hidden="true">⎇</small> Git</span></div></div>
+    <section class="section" id="work" aria-labelledby="work-title"><div class="container">
+      <div class="section-head reveal"><div><span class="kicker">01 / Selected work</span><h2 id="work-title">Small ideas.<br>Meaningful solutions.</h2></div><p>A selection of projects where curiosity meets code — from everyday utilities to explainable AI.</p></div>
+      <div class="filters" role="group" aria-label="Filter projects"><button class="filter" data-filter="all" aria-pressed="true" type="button">All projects</button><button class="filter" data-filter="web" aria-pressed="false" type="button">Web & utilities</button><button class="filter" data-filter="ai" aria-pressed="false" type="button">AI & vision</button><button class="filter" data-filter="data" aria-pressed="false" type="button">Databases</button></div>
+      <p id="filter-status" class="visually-hidden" aria-live="polite">3 projects shown</p>
+      <div class="projects-grid">
+        <article class="project-card reveal" data-category="ai" data-tilt><div class="project-visual ai-visual"><span class="project-number" style="color:#bdd1c4">01 / COMPUTER VISION</span><div class="vision-screen" aria-hidden="true"><div class="vision-top"><span>POSE / HAND LANDMARKS</span><span>● SCREENING</span></div><svg viewBox="0 0 150 150" fill="none"><g stroke="#8ad5b0" stroke-width="1.5"><circle cx="75" cy="24" r="11"/><path d="M75 35V72M75 45L49 57 30 39M75 45L102 60 120 34M75 72L54 110 43 139M75 72L94 107 110 139M49 57L54 75M102 60L110 79"/><path d="M30 39L21 29M30 39L28 24M120 34L115 17M120 34L127 18M120 34L132 27"/></g><g fill="#c9ffdf"><circle cx="75" cy="45" r="3"/><circle cx="75" cy="72" r="3"/><circle cx="49" cy="57" r="3"/><circle cx="102" cy="60" r="3"/><circle cx="30" cy="39" r="3"/><circle cx="120" cy="34" r="3"/><circle cx="54" cy="110" r="3"/><circle cx="94" cy="107" r="3"/></g><rect x="15" y="5" width="120" height="141" stroke="#6d9e8260" stroke-dasharray="3 4"/></svg><div class="scan-line"></div><span class="vision-status">FALL · SOS · NORMAL / EXPLAINABLE AI</span></div></div><div class="project-info"><span class="project-type">AI & computer vision</span><div class="project-title-line"><h3>See. Understand. Explain.</h3><button class="project-open" data-project="fall" aria-label="View Fall and SOS screening project details" type="button"><svg class="arrow-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12" stroke="currentColor" stroke-width="1.5"/></svg></button></div><p>Screening CCTV clips for falls and SOS gestures with explainable, landmark-based predictions.</p><div class="tags"><span>Python</span><span>MediaPipe</span><span>OpenCV</span></div></div></article>
+        <article class="project-card reveal" data-category="data" data-tilt><div class="project-visual"><span class="project-number">02 / DATABASE SYSTEM</span><img src="project%20images/movie%20ticket.png" alt="Movie ticket booking project interface" width="600" height="360" loading="lazy"></div><div class="project-info"><span class="project-type">Databases & application logic</span><div class="project-title-line"><h3>Your seat. Sorted.</h3><button class="project-open" data-project="movie" aria-label="View Movie Ticket Booking System details" type="button"><svg class="arrow-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12" stroke="currentColor" stroke-width="1.5"/></svg></button></div><p>A movie booking database connecting showtimes, seat reservations, and customer records.</p><div class="tags"><span>MySQL</span><span>SQL</span><span>DBMS</span></div></div></article>
+        <article class="project-card reveal" data-category="web" data-tilt><div class="project-visual currency"><span class="project-number">03 / EVERYDAY UTILITY</span><img src="project%20images/currency%20exchange%20rate%20.png" alt="Currency exchange calculator project interface" width="600" height="360" loading="lazy"></div><div class="project-info"><span class="project-type">Web & utilities</span><div class="project-title-line"><h3>Different currencies. Simple.</h3><button class="project-open" data-project="currency" aria-label="View Currency Exchange Calculator details" type="button"><svg class="arrow-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12" stroke="currentColor" stroke-width="1.5"/></svg></button></div><p>A focused currency calculator that makes conversion approachable through a simple interface.</p><div class="tags"><span>HTML</span><span>CSS</span><span>Conversion logic</span></div></div></article>
+      </div><div class="section-foot"><a class="text-link" href="https://github.com/sahildandia" target="_blank" rel="noopener noreferrer">More from my GitHub <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12" stroke="currentColor" stroke-width="1.5"/></svg></a></div>
+    </div></section>
+    <section class="section about-section" id="about" aria-labelledby="about-title"><div class="container about-grid">
+      <div class="about-copy reveal"><span class="kicker">02 / Behind the code</span><h2 id="about-title">Curious by nature.<br>Builder by choice.</h2><p>I’m a Computer Science & Engineering student at M. Kumarasamy College of Engineering. I enjoy connecting thoughtful interfaces with solid application logic — and exploring how technology can solve practical problems.</p><p>My interests span full-stack development, relational databases, and computer vision. I’m especially interested in efficient, offline-first solutions for rural India.</p><a class="text-link" href="assets/Sahil-Kumar-Resume.docx" download="Sahil-Kumar-Resume.docx">Get the full story in my résumé <span class="arrow" aria-hidden="true">↓</span></a><div class="about-location"><span aria-hidden="true">⌖</span> From Jammu · Studying in Karur, Tamil Nadu</div></div>
+      <div class="skills-grid reveal"><article class="skill-card"><span class="skill-symbol" aria-hidden="true">&lt;/&gt;</span><h3>Web development</h3><p>HTML, CSS, React & Node.js<br>Interfaces with practical purpose.</p></article><article class="skill-card"><span class="skill-symbol" aria-hidden="true">{ }</span><h3>Application logic</h3><p>Java, Python & SQL<br>Turning problems into workflows.</p></article><article class="skill-card"><span class="skill-symbol" aria-hidden="true">▤</span><h3>Data & databases</h3><p>MySQL, JDBC & relational design<br>Structure that supports the experience.</p></article><article class="skill-card"><span class="skill-symbol" aria-hidden="true">◎</span><h3>Computer vision</h3><p>MediaPipe, OpenCV & SHAP<br>Seeing patterns. Explaining decisions.</p></article></div>
+    </div></section>
+    <section class="section" id="experience" aria-labelledby="journey-title"><div class="container">
+      <div class="section-head reveal"><div><span class="kicker">03 / The journey so far</span><h2 id="journey-title">Always learning.<br>Always moving forward.</h2></div><p>Learning through real projects, collaborative work, and a community of people who love to build.</p></div>
+      <div class="journey-grid"><div class="timeline reveal"><article class="timeline-item"><span class="timeline-date">May 2026 — Present</span><h3>Google Student Ambassador</h3><div class="timeline-company">Campus developer community</div><p>Leading workshops on Gemini AI, Google Cloud, and Workspace, and helping fellow students explore tools and ideas.</p></article><article class="timeline-item"><span class="timeline-date">15-day internship · Remote</span><h3>Full Stack Development Intern</h3><div class="timeline-company">Appex Production</div><p>Contributed to software development tasks, implemented project modules, debugged defects, and worked with mentors through structured development and review workflows.</p></article><article class="timeline-item"><span class="timeline-date">Ongoing</span><h3>Building, exploring, contributing</h3><div class="timeline-company">Personal projects & open source</div><p>Putting classroom concepts into practice through database systems, web applications, and explainable computer vision.</p></article></div>
+        <div class="reveal"><article class="education-card"><span class="education-label">EDUCATION / 2024 — 2028</span><h3>B.E. Computer Science<br>& Engineering</h3><p>M. Kumarasamy College of Engineering<br>Karur, Tamil Nadu</p><div class="education-meta"><span>CGPA <strong>7.7 / 10</strong></span><span>Class of 2028 <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12" stroke="currentColor" stroke-width="1.5"/></svg></span></div></article><div class="certifications"><h3>A few things I’ve learned</h3><ul><li>Human Computer Interaction <span>NPTEL</span></li><li>Organizational Behaviour <span>NPTEL</span></li><li>HTML & CSS <span>GeeksforGeeks</span></li><li>Java Programming Masterclass <span>Udemy</span></li><li>Explainable AI <span>Udemy</span></li></ul></div></div>
+      </div>
+    </div></section>
+    <section class="contact-section" id="contact" aria-labelledby="contact-title"><div class="container"><div class="contact-box reveal"><div class="contact-grid">
+      <div class="contact-copy"><span class="kicker">04 / Let’s make something</span><h2 id="contact-title">Good things start<br>with a <em>hello.</em></h2><p>Have an idea, an opportunity, or just a question? I’d love to hear from you.</p><div class="contact-details"><a class="email-link" id="email-link" href="mailto:dandiasahil@gmail.com">dandiasahil@gmail.com</a><button class="copy-email" id="copy-email" type="button">Copy email</button></div><p id="copy-status" class="form-status" role="status"></p><div class="socials"><a href="https://github.com/sahildandia" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="https://linkedin.com/in/sahildandia" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a><a href="tel:+917051381035">Call me ↗</a></div></div>
+      <form class="contact-form" id="contact-form" action="mailto:dandiasahil@gmail.com" method="get"><div class="form-row"><div class="field"><label for="contact-name">Your name</label><input id="contact-name" name="name" placeholder="Alex Smith" autocomplete="name" required maxlength="100"></div><div class="field"><label for="contact-email">Email address</label><input id="contact-email" name="email" placeholder="alex@example.com" type="email" autocomplete="email" required maxlength="254"></div></div><div class="field"><label for="contact-message">What do you have in mind?</label><textarea id="contact-message" name="message" placeholder="Tell me a little about your idea…" required minlength="10" maxlength="5000" rows="3"></textarea></div><button class="button accent" type="submit">Let’s connect <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12" stroke="currentColor" stroke-width="1.5"/></svg></button><p class="form-note">Opens a draft in your email app. You review it and send.</p><p class="form-status" id="form-status" role="status"></p><a id="email-draft" class="draft-link" hidden target="_blank" rel="noopener noreferrer">Open your email draft →</a></form>
+    </div></div></div></section>
+  </main>
+  <footer><div class="container footer-inner"><span class="footer-brand">Sahil Kumar<span style="color:var(--accent)">.</span></span><span>© <span id="year">2026</span> · Crafted with curiosity & care.</span><a href="#home">Back to top <span aria-hidden="true">↑</span></a></div></footer>
+  <dialog class="project-dialog" id="project-dialog" aria-labelledby="dialog-title"><button type="button" class="icon-button dialog-close" id="dialog-close" aria-label="Close project details">×</button><span class="kicker" id="dialog-type"></span><h2 id="dialog-title"></h2><p id="dialog-description"></p><ul id="dialog-points"></ul><div class="tags" id="dialog-tags"></div><a class="button primary" id="dialog-source" target="_blank" rel="noopener noreferrer">View on GitHub <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12" stroke="currentColor" stroke-width="1.5"/></svg></a><p id="dialog-source-note" class="form-note">Interested in the implementation? <a href="mailto:dandiasahil@gmail.com?subject=Fall%20and%20SOS%20screening%20project">Ask me about this project ↗</a></p></dialog>
 </body>
-
 </html>
