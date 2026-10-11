@@ -15,7 +15,7 @@ No package installation or build is required. The existing `about.html`, `projec
 ## Edit
 
 - Page content: `index.html` and the corresponding HTML entry pages.
-- Styling: `assets/portfolio.css`.
+- Styling: `assets/portfolio.css` (base) and `assets/refinement.css` (visual theme).
 - Interactions and project details: `assets/portfolio.js`.
 - Download: `assets/Sahil-Kumar-Resume.docx`.
 - Portrait: `assets/sahil-portrait.png`.
