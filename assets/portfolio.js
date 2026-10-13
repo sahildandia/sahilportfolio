@@ -4,13 +4,16 @@
   const themeButton = document.querySelector('#theme-toggle');
   const setTheme = theme => {
     document.documentElement.dataset.theme = theme;
-    themeButton.textContent = theme === 'dark' ? '☀' : '☾';
+    themeButton.innerHTML = theme === 'dark'
+      ? '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>'
+      : '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4a8.5 8.5 0 1 0 11.5 11.5Z"/></svg>';
     themeButton.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`);
     themeButton.setAttribute('aria-pressed', String(theme === 'dark'));
+    document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#0c0e14' : '#f7f8fc';
   };
   let savedTheme;
   try { savedTheme = localStorage.getItem('sahil-theme'); } catch (_) { /* Storage can be restricted. */ }
-  setTheme(savedTheme === 'dark' ? 'dark' : 'light');
+  setTheme(savedTheme === 'light' ? 'light' : 'dark');
   themeButton.addEventListener('click', () => {
     const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
     setTheme(theme);
@@ -31,6 +34,10 @@
   document.addEventListener('click', e => { if (!nav.contains(e.target) && !menuButton.contains(e.target)) closeMenu(); });
 
   const reveals = document.querySelectorAll('.reveal');
+  reducedMotion.addEventListener('change', () => {
+    document.documentElement.classList.toggle('js-motion', !reducedMotion.matches);
+    if (reducedMotion.matches) document.querySelectorAll('[data-tilt]').forEach(el => { el.style.transform = ''; });
+  });
   if ('IntersectionObserver' in window) {
     if (!reducedMotion.matches) document.documentElement.classList.add('js-motion');
     const revealObserver = new IntersectionObserver(entries => entries.forEach(entry => {
