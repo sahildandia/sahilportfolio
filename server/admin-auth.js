@@ -1,4 +1,5 @@
-import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import { DEFAULT_ADMIN_ID, DEFAULT_PASSWORD_HASH, DEFAULT_PASSWORD_SALT } from './default-admin.js';
 
 export const SESSION_SECONDS = 4 * 60 * 60;
 export const COOKIE_NAME = 'portfolio_admin';
@@ -7,11 +8,11 @@ const WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
 
 export function config(env = process.env) {
-  const id = env.ADMIN_ID || '';
+  const id = env.ADMIN_ID || DEFAULT_ADMIN_ID;
   const password = env.ADMIN_PASSWORD || '';
   const secret = env.ADMIN_SESSION_SECRET || '';
-  return id.trim() === id && id.length >= 3 && id.length <= 100 && password.length >= 12 && password.length <= 256 && secret.length >= 32
-    ? { id, password, secret } : null;
+  return id.trim() === id && id.length >= 3 && id.length <= 100 && (!password || password.length >= 8) && password.length <= 256 && secret.length >= 32
+    ? { id, ...(password ? {password} : {passwordHash:DEFAULT_PASSWORD_HASH}), secret } : null;
 }
 
 function equal(a, b) {
@@ -22,13 +23,15 @@ function equal(a, b) {
 export function credentialsMatch(id, password, settings) {
   // Evaluate both comparisons, and never reveal whether only the ID matched.
   const idMatches = equal(id, settings.id);
-  const passwordMatches = equal(password, settings.password);
+  const passwordMatches = settings.password !== undefined
+    ? equal(password, settings.password)
+    : timingSafeEqual(scryptSync(String(password),DEFAULT_PASSWORD_SALT,64),Buffer.from(settings.passwordHash,'hex'));
   return idMatches && passwordMatches;
 }
 
 function signingKey(settings) {
   // Changing either login credential revokes existing sessions as well.
-  return createHmac('sha256', settings.secret).update(settings.id).update('\0').update(settings.password).digest();
+  return createHmac('sha256', settings.secret).update(settings.id).update('\0').update(settings.password ?? settings.passwordHash).digest();
 }
 
 export function createSession(settings, now = Date.now()) {

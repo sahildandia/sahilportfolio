@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   let body;
   try { body = await readJson(req); } catch { return json(res, 400, { error: 'The sign-in request could not be read.' }); }
   if (body?.action === 'logout') { res.setHeader('Set-Cookie', sessionCookie(req, '', true)); return json(res, 200, { authenticated: false }); }
-  if (!settings) return json(res, 503, { error: 'Admin sign-in has not been configured. Set the admin credentials in your Vercel environment settings, then redeploy.' });
+  if (!settings) return json(res, 503, { error: 'Admin sign-in has not been configured. Set ADMIN_SESSION_SECRET in Vercel and check any credential overrides, then redeploy.' });
   if (body?.action !== 'login' || typeof body.id !== 'string' || typeof body.password !== 'string' || body.id.length > 100 || body.password.length > 256) return json(res, 400, { error: 'Enter an admin ID and password.' });
   const key = attemptKey(req);
   const retry = attemptsBlocked(key);

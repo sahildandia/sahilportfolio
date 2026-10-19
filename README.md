@@ -14,15 +14,15 @@ There are no npm dependencies or database to install. Set `PORT` for a different
 
 ## Admin ID and password on Vercel
 
-Add these private variables in your Vercel project’s **Settings → Environment Variables**, then **redeploy**:
+The requested default admin ID is `dandiasahil@gmail.com`. Its password is stored as a salted server-side verifier rather than plain text. To activate sessions, set the private `ADMIN_SESSION_SECRET` in Vercel and redeploy. You can replace the defaults with these variables in **Settings → Environment Variables**:
 
 | Variable | Value you choose |
 | --- | --- |
-| `ADMIN_ID` | Your admin ID, at least 3 characters. |
-| `ADMIN_PASSWORD` | A unique password, at least 12 characters. |
+| `ADMIN_ID` | Optional override for the default email, at least 3 characters. |
+| `ADMIN_PASSWORD` | Optional private replacement password, at least 8 characters; a longer unique password is recommended. |
 | `ADMIN_SESSION_SECRET` | A separately generated random secret, at least 32 characters. |
 
-Use a password manager to generate and retain the password and session secret. Do not send either value in chat or commit it to GitHub. There are no default credentials. Configure Production and Preview separately if both deployments need an admin portal.
+Use a password manager to generate and retain the password and session secret. Do not send either value in chat or commit it to GitHub. The requested defaults apply only when no corresponding override is set. Remove an existing `ADMIN_PASSWORD` override to use the default verifier. Never publish the plain-text password in source or documentation. Configure Production and Preview separately if both deployments need an admin portal.
 
 Open `/admin/` after redeployment. Missing configuration keeps the editor locked. Server-verified sessions expire after four hours and use HttpOnly, SameSite=Strict cookies with Secure enabled on Vercel. **Lock admin** saves valid draft edits, clears the browser session, and disconnects GitHub. Changing the ID, password, or session secret and redeploying invalidates existing signed sessions.
 

@@ -4,7 +4,7 @@ Sign in at `/admin/` on your Vercel-hosted portfolio. Vercel serverless function
 
 ## Configure ID/password access
 
-In Vercel project settings, set `ADMIN_ID` (3+ characters), `ADMIN_PASSWORD` (a unique password of 12+ characters), and `ADMIN_SESSION_SECRET` (a separately generated random secret of 32+ characters), then redeploy. Choose and retain these privately; no default credentials are provided. Never commit the values. For local development, put them in ignored `.env.local` and run `npm run dev`.
+The requested default ID is `dandiasahil@gmail.com`; the requested password is represented by a salted server-side verifier. In Vercel set `ADMIN_SESSION_SECRET` to a separately generated random secret of 32+ characters, then redeploy. Optional `ADMIN_ID` and `ADMIN_PASSWORD` overrides replace the defaults. Choose a stronger private password override of at least 8 characters when possible. An existing password override must be removed to use the default. Never commit plain-text credentials. For local development, put them in ignored `.env.local` and run `npm run dev`.
 
 Sessions expire after four hours and use HttpOnly, SameSite=Strict cookies with Secure enabled in production. Lock admin saves valid draft edits, clears the browser cookie, and disconnects GitHub. Changing a credential or the session secret and redeploying invalidates existing signed sessions. Keep the Vercel admin routes before filesystem handling. A static-only server cannot enforce this login. Authentication rejects cross-origin login/logout requests and does not cache protected responses.
 

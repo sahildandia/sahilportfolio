@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createDevServer } from '../scripts/dev-server.mjs';
-import { config, createSession, verifySession, sessionCookie, clearFailures } from '../server/admin-auth.js';
+import { config, credentialsMatch, createSession, verifySession, sessionCookie, clearFailures } from '../server/admin-auth.js';
 
 // Test fixtures only. Production requires private Vercel environment variables.
 const settings = { id:'test-owner', password:'test-only-passphrase-42!', secret:'test-only-session-key-'.repeat(3) };
@@ -21,6 +21,20 @@ test('signed sessions reject tampering, expiry, and changed credentials', () => 
   assert.ok(cookie.includes('; Secure'));
   assert.ok(cookie.includes('; HttpOnly'));
   assert.ok(cookie.includes('; SameSite=Strict'));
+});
+
+test('default login uses only a salted verifier and still requires a private signing secret', () => {
+  assert.equal(config({}),null);
+  const defaults=config({ADMIN_SESSION_SECRET:'fixture-private-session-secret-'.repeat(2)});
+  assert.equal(defaults.id,'dandiasahil@gmail.com');
+  assert.equal(defaults.password,undefined);
+  assert.equal(typeof defaults.passwordHash,'string');
+  assert.equal(credentialsMatch(defaults.id,'incorrect-password',defaults),false);
+  const session=createSession(defaults);
+  assert.equal(verifySession(session,defaults),true);
+  const replacement=config({ADMIN_ID:'another-owner',ADMIN_PASSWORD:'fixture-replacement',ADMIN_SESSION_SECRET:defaults.secret});
+  assert.equal(credentialsMatch('another-owner','fixture-replacement',replacement),true);
+  assert.equal(verifySession(session,replacement),false);
 });
 
 test('real HTTP routing enforces login and protects editor assets', async () => {
