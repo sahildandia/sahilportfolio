@@ -30,6 +30,7 @@ const definitions = {
     ['tags','Technology tags',{ kind:'lines', help:'One technology per line.' }],
     ['image','Screenshot path or HTTPS URL',{ help:'Leave blank for the illustrated project placeholder.' }],
     ['source','Source code URL',{ kind:'url', help:'HTTPS. Leave blank if the source is not public.' }],
+    ['download','APK download URL',{ kind:'url', help:'Optional HTTPS link to an Android APK. Use a permanent release URL.' }],
     ['demo','Live demo URL',{ kind:'url', help:'HTTPS. Leave blank when no demo is available.' }],
     ['details','Project details',{ kind:'lines', span:true, help:'One detail or bullet point per line.' }],
   ] },

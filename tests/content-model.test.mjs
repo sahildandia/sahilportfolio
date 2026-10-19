@@ -8,7 +8,7 @@ for (const input of ['javascript:alert(1)',' javascript:alert(1)','data:text/htm
   assert.equal(safeUrl(input),false,`Unsafe URL accepted: ${input}`);
 }
 for (const input of ['assets/sahil-portrait.png','project images/movie ticket.png','https://example.com/resume.pdf']) assert.equal(safeUrl(input),true);
-for (const change of [d=>d.profile.email='bad',d=>d.projects.push(structuredClone(d.projects[0])),d=>d.profile.resume=' javascript:alert(1)',d=>d.projects[0].source='http://example.com',d=>d.unknownSecret='test',d=>d.profile.unknownSecret='test',d=>d.skills[0].name='',d=>d.settings.defaultTheme='other']) {
+for (const change of [d=>d.profile.email='bad',d=>d.projects.push(structuredClone(d.projects[0])),d=>d.profile.resume=' javascript:alert(1)',d=>d.projects[0].source='http://example.com',d=>d.projects[0].download='javascript:alert(1)',d=>d.unknownSecret='test',d=>d.profile.unknownSecret='test',d=>d.skills[0].name='',d=>d.settings.defaultTheme='other']) {
   const data=structuredClone(original);change(data);assert.ok(validateContent(data).length,'Invalid content was accepted');
 }
 const hostile=structuredClone(original);hostile.profile.name='<img src=x onerror=alert(1)> & Café';

@@ -104,7 +104,7 @@ document.querySelectorAll('[data-project]').forEach(button=>button.addEventListe
   $('#dialog-title').textContent=project.title; $('#dialog-type').textContent=project.type; $('#dialog-description').textContent=project.description;
   $('#dialog-points').replaceChildren(...project.details.map(text=>{ const li=document.createElement('li');li.textContent=text;return li;}));
   $('#dialog-tags').replaceChildren(...project.tags.map(text=>{ const span=document.createElement('span');span.textContent=text;return span;}));
-  for (const key of ['source','demo']) { const link=$('#dialog-'+key); link.hidden=!project[key]; if(project[key])link.href=project[key];else link.removeAttribute('href'); }
+  for (const key of ['source','demo','download']) { const link=$('#dialog-'+key); link.hidden=!project[key]; if(project[key])link.href=project[key];else link.removeAttribute('href'); }
   $('#dialog-source-note').hidden=Boolean(project.source); dialog.showModal();
 }));
 $('#dialog-close').addEventListener('click',()=>dialog.close());

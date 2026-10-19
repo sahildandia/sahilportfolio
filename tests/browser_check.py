@@ -204,6 +204,11 @@ def verify_public(browser, base, errors, screenshots):
             expect(page.locator("#dialog-source")).to_be_visible()
         else:
             expect(page.locator("#dialog-source")).to_be_hidden()
+        if project.get("download"):
+            expect(page.locator("#dialog-download")).to_be_visible()
+            expect(page.locator("#dialog-download")).to_have_attribute("href", project["download"])
+        else:
+            expect(page.locator("#dialog-download")).to_be_hidden()
         page.keyboard.press("Escape")
         expect(page.locator("#project-dialog")).to_be_hidden()
         # Native <dialog> dispatches its close event after closing; let its

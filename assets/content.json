@@ -114,7 +114,8 @@
         "Supabase authentication, database-backed matching, and realtime message updates.",
         "Mobile interface packaged for Android with Capacitor, including keyboard and scrolling adjustments.",
         "Reporting and blocking controls with age and privacy consent."
-      ]
+      ],
+      "download": "https://github.com/sahildandia/StrangerTalks/releases/latest/download/CampusMate-release.apk"
     },
     {
       "id": "fall",
