@@ -1,8 +1,14 @@
 # Portfolio Studio
 
-Open `/admin/` on the same static host as the portfolio. The editor reads the
-existing `assets/content.json` and uses the shared content validator. It needs
-no server, database, build step, or external JavaScript service.
+Sign in at `/admin/` on your Vercel-hosted portfolio. Vercel serverless functions protect the editor and its scripts; no separate database or server deployment is required.
+
+## Configure ID/password access
+
+In Vercel project settings, set `ADMIN_ID` (3+ characters), `ADMIN_PASSWORD` (a unique password of 12+ characters), and `ADMIN_SESSION_SECRET` (a separately generated random secret of 32+ characters), then redeploy. Choose and retain these privately; no default credentials are provided. Never commit the values. For local development, put them in ignored `.env.local` and run `npm run dev`.
+
+Sessions expire after four hours and use HttpOnly, SameSite=Strict cookies with Secure enabled in production. Lock admin saves valid draft edits, clears the browser cookie, and disconnects GitHub. Changing a credential or the session secret and redeploying invalidates existing signed sessions. Keep the Vercel admin routes before filesystem handling. A static-only server cannot enforce this login. Authentication rejects cross-origin login/logout requests and does not cache protected responses.
+
+The admin ID/password grants editor access. GitHub publishing still requires the connection described below.
 
 ## Editing and previewing
 
@@ -65,8 +71,7 @@ explain the next step.
 Serve the complete repository with its `admin/` directory and `assets/` files.
 The host must permit browser requests to `https://api.github.com`. Keep the
 admin page's Content Security Policy, local scripts, and `no-referrer` policy
-intact. The admin URL is public, but visitors cannot publish without a token
-that GitHub authorizes for the repository.
+intact. The login screen is public; the editor requires a valid session and publishing additionally requires a token GitHub authorizes for the repository.
 
 Automated browser checks mock GitHub responses. Test runs never publish test
 content, upload files to a real repository, or require a real access token.

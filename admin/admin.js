@@ -1,4 +1,7 @@
 import { validateContent, safeUrl, escapeHtml as esc } from '../assets/content-model.js';
+import { requireAdminSession } from './access.js';
+
+await requireAdminSession();
 
 const $ = id => document.getElementById(id);
 const DRAFT_KEY = 'sahil-portfolio-admin-draft';
@@ -186,6 +189,7 @@ function errorForResponse(response) {
 }
 
 async function githubRequest(path, options = {}, token = authToken) {
+  await requireAdminSession();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(),20000);
   try {
@@ -500,6 +504,22 @@ async function uploadAsset(button) {
 window.addEventListener('beforeunload',event => {
   if (dirty || busy) { event.preventDefault(); event.returnValue = ''; }
 });
+
+$('lock-admin').addEventListener('click', async () => {
+  if (busy) return;
+  if (dirty && !saveDraft({quiet:true}) && !window.confirm('Your draft could not be saved. Lock admin and discard unsaved edits?')) return;
+  clearAuthentication();
+  setBusy(true);
+  try {
+    const response = await fetch('/api/admin-auth', { method:'POST', credentials:'same-origin', redirect:'error', headers:{'Content-Type':'application/json'}, body:JSON.stringify({action:'logout'}) });
+    if (!response.ok) throw new Error('The admin session could not be locked. Try again.');
+    dirty = false;
+    busy = false;
+    location.replace('/admin/');
+  } catch (error) { status(error.message,'error'); setBusy(false); }
+});
+window.addEventListener('pageshow', event => { if (event.persisted) requireAdminSession().catch(() => { clearAuthentication(); }); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) requireAdminSession().catch(() => { clearAuthentication(); }); });
 
 async function initialize() {
   try {

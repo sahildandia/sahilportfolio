@@ -78,7 +78,7 @@ def check_http_and_links(base):
     """Check referenced real files, not just existence of a server process."""
     parsers = {}
     checked = set()
-    for page in [*ROOT.glob("*.html"), ROOT / "admin/index.html"]:
+    for page in ROOT.glob("*.html"):
         parser = References()
         parser.feed(page.read_text())
         relative_page = page.relative_to(ROOT).as_posix()
@@ -460,6 +460,17 @@ def verify_admin(browser, base, screenshots):
     fixture = MockGitHub()
     context = browser.new_context(viewport={"width": 1440, "height": 1000}, accept_downloads=True)
     context.route("https://api.github.com/**", fixture.handle)
+    # Isolate the CMS/GitHub workflow from server authentication. Real login
+    # and protected delivery are exercised separately in admin-auth.test.mjs
+    # and admin-login-browser.py, without mocking their security checks.
+    context.route("**/api/admin-auth", lambda route: route.fulfill(json={"configured": True, "authenticated": True}))
+    def editor_fixture(route):
+        name = urlsplit(route.request.url).path.removeprefix("/admin/") or "index.html"
+        if name not in ("index.html", "admin.js", "admin.css", "access.js"):
+            return route.continue_()
+        content_type = "text/html" if name.endswith(".html") else "text/css" if name.endswith(".css") else "text/javascript"
+        route.fulfill(body=(ROOT / "admin" / name).read_bytes(), content_type=content_type)
+    context.route(re.compile(re.escape(urljoin(base, "admin/")) + r".*"), editor_fixture)
     page = context.new_page()
     runtime_errors = []
     console_errors = []

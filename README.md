@@ -4,24 +4,40 @@ An editorial portfolio inspired by the supplied reference screenshots: warm ivor
 
 ## Run
 
-Serve the complete checkout over HTTP:
+Use Node.js 22+ for the portfolio and protected admin portal:
 
 ```sh
-python3 -m http.server 8000 --bind 0.0.0.0
+npm run dev
 ```
 
-No package installation, database, API key, or runtime build is required. Use another port if necessary. The original `about.html`, `projects.html`, `experience.html`, and `contact.html` routes still open the corresponding sections.
+There are no npm dependencies or database to install. Set `PORT` for a different port. For local login, copy `.env.example` to `.env.local`, choose your credentials privately, and restart the development server. Original page routes remain supported.
+
+## Admin ID and password on Vercel
+
+Add these private variables in your Vercel project’s **Settings → Environment Variables**, then **redeploy**:
+
+| Variable | Value you choose |
+| --- | --- |
+| `ADMIN_ID` | Your admin ID, at least 3 characters. |
+| `ADMIN_PASSWORD` | A unique password, at least 12 characters. |
+| `ADMIN_SESSION_SECRET` | A separately generated random secret, at least 32 characters. |
+
+Use a password manager to generate and retain the password and session secret. Do not send either value in chat or commit it to GitHub. There are no default credentials. Configure Production and Preview separately if both deployments need an admin portal.
+
+Open `/admin/` after redeployment. Missing configuration keeps the editor locked. Server-verified sessions expire after four hours and use HttpOnly, SameSite=Strict cookies with Secure enabled on Vercel. **Lock admin** saves valid draft edits, clears the browser session, and disconnects GitHub. Changing the ID, password, or session secret and redeploying invalidates existing signed sessions.
+
+The included `vercel.json` routes `/admin` and `/admin/*` through authentication before static file serving. Keep these routes intact. GitHub Pages or a plain static server cannot enforce password protection; use Vercel or the included Node development server for the admin portal. The public portfolio remains static. Login attempts are limited per running function instance; Vercel Firewall rate limiting can provide coverage across instances.
 
 ## Edit your portfolio
 
-Open **`/admin/`** on the same host as the portfolio. You can edit every profile, biography, skill, project, education, experience, certification, and contact field, add/remove/reorder entries, and change photos or the résumé.
+Sign in at **`/admin/`** on your Vercel-hosted portfolio. You can edit every profile, biography, skill, project, education, experience, certification, and contact field, add/remove/reorder entries, and change photos or the résumé.
 
 - **Local drafts** save public content in your current browser only.
 - **Preview** opens an unpublished view in a new tab, marked with a preview banner.
 - **Export/Import JSON** creates and restores portable backups.
 - **Publish to GitHub** commits the content to your repository. Your normal website deployment then makes it public.
 
-To publish, create a GitHub fine-grained personal access token limited to `sahildandia/sahilportfolio` with **Contents: Read and write**, and enter it only in the portal’s connection form. Defaults are owner `sahildandia`, repository `sahilportfolio`, branch `master`. The token stays in tab memory; it is never stored in content, drafts, backups, storage, or URLs. Refreshing, closing the tab, or signing out clears the connection. The admin URL can be visited publicly, but GitHub authorizes every write.
+The ID/password controls editor access. To publish, still connect a GitHub fine-grained personal access token limited to `sahildandia/sahilportfolio` with **Contents: Read and write**, and enter it only in the portal’s connection form. Defaults are owner `sahildandia`, repository `sahilportfolio`, branch `master`. The token stays in tab memory; it is never stored in content, drafts, backups, storage, or URLs. Refreshing, closing the tab, or signing out clears the connection. The editor additionally verifies its admin session before every GitHub operation; GitHub authorizes every write.
 
 Publishing checks the latest file SHA and refuses to overwrite concurrent changes. Authentication, permission, rate-limit, and conflict errors retain your draft. The portal does not configure hosting: the repository must already be connected to your static deployment. Uploading a photo or résumé creates a separate asset commit; publish the content afterward to use the file. Uploaded assets become available on your website after deployment.
 
@@ -53,7 +69,9 @@ With Python Playwright and Chromium available and the server running:
 
 ```sh
 node tests/content-model.test.mjs
+npm run test:auth
+python3 tests/admin-login-browser.py
 PORTFOLIO_BASE_URL=http://127.0.0.1:8000 python3 tests/browser_check.py
 ```
 
-Checks cover six viewport widths, routes, search/filtering, project dialogs, exact résumé downloads, contact drafts, clipboard behavior, optional WebGL and fallback, reduced motion, and the admin editing/publishing workflow. GitHub requests in browser tests are simulated; tests never upload files or publish test content to a real repository. The site bundles its fonts and Three.js locally with their license notices.
+Checks cover six viewport widths, routes, search/filtering, project dialogs, exact résumé downloads, contact drafts, clipboard behavior, optional WebGL and fallback, reduced motion, and the admin editing/publishing workflow. Authentication tests exercise real HTTP route protection, signed sessions, expiry, sign-in limits, and browser login/locking with temporary test credentials. The CMS workflow suite uses authenticated-session and GitHub fixtures to isolate editing behavior. GitHub requests in those tests are simulated; tests never upload files or publish test content to a real repository. The site bundles its fonts and Three.js locally with their license notices.
