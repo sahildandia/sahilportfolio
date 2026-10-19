@@ -1,8 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, mkdtemp, rm, stat } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { createDevServer } from '../scripts/dev-server.mjs';
 import { config, credentialsMatch, createSession, verifySession, sessionCookie, clearFailures } from '../server/admin-auth.js';
+import { prepareSessionKey } from '../server/session-key.js';
 
 // Test fixtures only. Production requires private Vercel environment variables.
 const settings = { id:'test-owner', password:'test-only-passphrase-42!', secret:'test-only-session-key-'.repeat(3) };
@@ -15,7 +18,7 @@ test('signed sessions reject tampering, expiry, and changed credentials', () => 
   assert.equal(verifySession(token,settings,now+4*60*60*1000),false);
   assert.equal(verifySession(token,{...settings,password:'changed-password'},now),false);
   assert.equal(verifySession(token,{...settings,id:'other-owner'},now),false);
-  assert.equal(config({}),null);
+  assert.equal(config({},''),null);
   assert.equal(config({ADMIN_ID:'valid',ADMIN_PASSWORD:'short',ADMIN_SESSION_SECRET:'x'.repeat(32)}),null);
   const cookie = sessionCookie({headers:{host:'portfolio.vercel.app'}},token);
   assert.ok(cookie.includes('; Secure'));
@@ -23,9 +26,9 @@ test('signed sessions reject tampering, expiry, and changed credentials', () => 
   assert.ok(cookie.includes('; SameSite=Strict'));
 });
 
-test('default login uses only a salted verifier and still requires a private signing secret', () => {
-  assert.equal(config({}),null);
-  const defaults=config({ADMIN_SESSION_SECRET:'fixture-private-session-secret-'.repeat(2)});
+test('default login uses a salted verifier and an automatically generated deployment secret', () => {
+  assert.equal(config({},''),null);
+  const defaults=config({},'fixture-private-session-secret-'.repeat(2));
   assert.equal(defaults.id,'dandiasahil@gmail.com');
   assert.equal(defaults.password,undefined);
   assert.equal(typeof defaults.passwordHash,'string');
@@ -37,10 +40,30 @@ test('default login uses only a salted verifier and still requires a private sig
   assert.equal(verifySession(session,replacement),false);
 });
 
+test('session keys persist locally, rotate on deployment, and stay outside public output', async () => {
+  const dir=await mkdtemp(join(tmpdir(),'portfolio-key-test-'));
+  const file=join(dir,'private-key');
+  try {
+    await prepareSessionKey({file});
+    const first=await readFile(file,'utf8');
+    assert.equal(first.length,64);
+    assert.equal((await stat(file)).mode & 0o777,0o600);
+    await prepareSessionKey({file});
+    assert.ok(await readFile(file,'utf8') === first,'Startup should retain the local key');
+    await prepareSessionKey({file,rotate:true});
+    assert.ok(await readFile(file,'utf8') !== first,'Deployment should rotate the key');
+    const deployment=JSON.parse(await readFile(new URL('../vercel.json',import.meta.url)));
+    assert.equal(deployment.outputDirectory,'public');
+    assert.ok(deployment.functions['api/admin-auth.js'].includeFiles.includes('server/session-key.private'));
+    assert.ok(deployment.functions['api/admin-page.js'].includeFiles.includes('server/session-key.private'));
+  } finally { await rm(dir,{recursive:true,force:true}); }
+});
+
 test('real HTTP routing enforces login and protects editor assets', async () => {
   const names = ['ADMIN_ID','ADMIN_PASSWORD','ADMIN_SESSION_SECRET'];
   const before = Object.fromEntries(names.map(n=>[n,process.env[n]]));
   for(const n of names) delete process.env[n];
+  process.env.ADMIN_SESSION_SECRET='invalid-test-override';
   const server = createDevServer();
   await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
   const base = `http://127.0.0.1:${server.address().port}`;

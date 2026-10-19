@@ -4,7 +4,7 @@
   "type": "module",
   "engines": { "node": ">=22" },
   "scripts": {
-    "build": "node scripts/build.mjs",
+    "build": "node scripts/vercel-build.mjs",
     "dev": "node --env-file-if-exists=.env.local scripts/dev-server.mjs",
     "test:auth": "node --test tests/admin-auth.test.mjs"
   }

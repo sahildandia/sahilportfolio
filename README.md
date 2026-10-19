@@ -10,21 +10,17 @@ Use Node.js 22+ for the portfolio and protected admin portal:
 npm run dev
 ```
 
-There are no npm dependencies or database to install. Set `PORT` for a different port. For local login, copy `.env.example` to `.env.local`, choose your credentials privately, and restart the development server. Original page routes remain supported.
+There are no npm dependencies or database to install. Set `PORT` for a different port. The requested default login works automatically. Optional credential overrides can be placed in ignored `.env.local`. Original page routes remain supported.
 
 ## Admin ID and password on Vercel
 
-The requested default admin ID is `dandiasahil@gmail.com`. Its password is stored as a salted server-side verifier rather than plain text. To activate sessions, set the private `ADMIN_SESSION_SECRET` in Vercel and redeploy. You can replace the defaults with these variables in **Settings → Environment Variables**:
+The requested default admin ID is `dandiasahil@gmail.com`. The requested password is represented by a salted server-side verifier, never plain text. **No Vercel environment variables are required.** Deploy the latest code and open `/admin/`.
 
-| Variable | Value you choose |
-| --- | --- |
-| `ADMIN_ID` | Optional override for the default email, at least 3 characters. |
-| `ADMIN_PASSWORD` | Optional private replacement password, at least 8 characters; a longer unique password is recommended. |
-| `ADMIN_SESSION_SECRET` | A separately generated random secret, at least 32 characters. |
+At build time, `npm run build` generates a fresh cryptographically random session key. It is included only in the two serverless function bundles. The public deployment directory contains only public portfolio files, not the key, server sources, or editor source. The private key and generated public directory are ignored by Git. Local development generates and retains its own private key automatically.
 
-Use a password manager to generate and retain the password and session secret. Do not send either value in chat or commit it to GitHub. The requested defaults apply only when no corresponding override is set. Remove an existing `ADMIN_PASSWORD` override to use the default verifier. Never publish the plain-text password in source or documentation. Configure Production and Preview separately if both deployments need an admin portal.
+Optional `ADMIN_ID`, `ADMIN_PASSWORD`, and `ADMIN_SESSION_SECRET` environment variables still allow private overrides; remove an old override if you want to use its coded default. A longer unique password override is recommended. There is no need to create a signing secret manually. A new deployment's generated key invalidates sessions from the previous deployment, unless a fixed private signing-secret override is used.
 
-Open `/admin/` after redeployment. Missing configuration keeps the editor locked. Server-verified sessions expire after four hours and use HttpOnly, SameSite=Strict cookies with Secure enabled on Vercel. **Lock admin** saves valid draft edits, clears the browser session, and disconnects GitHub. Changing the ID, password, or session secret and redeploying invalidates existing signed sessions.
+Open `/admin/` after deployment. A missing private build artifact or invalid override keeps the editor locked. Server-verified sessions expire after four hours and use HttpOnly, SameSite=Strict cookies with Secure enabled on Vercel. **Lock admin** saves valid draft edits, clears the browser session, and disconnects GitHub. Changing the ID, password, or session secret and redeploying invalidates existing signed sessions.
 
 The included `vercel.json` routes `/admin` and `/admin/*` through authentication before static file serving. Keep these routes intact. GitHub Pages or a plain static server cannot enforce password protection; use Vercel or the included Node development server for the admin portal. The public portfolio remains static. Login attempts are limited per running function instance; Vercel Firewall rate limiting can provide coverage across instances.
 
@@ -69,6 +65,7 @@ With Python Playwright and Chromium available and the server running:
 
 ```sh
 node tests/content-model.test.mjs
+node --test tests/deployment-output.test.mjs
 npm run test:auth
 python3 tests/admin-login-browser.py
 PORTFOLIO_BASE_URL=http://127.0.0.1:8000 python3 tests/browser_check.py

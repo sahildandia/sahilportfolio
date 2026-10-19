@@ -1,10 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "npm run build",
-  "outputDirectory": ".",
+  "outputDirectory": "public",
   "functions": {
     "api/admin-page.js": {
-      "includeFiles": "admin/**"
+      "includeFiles": "{admin/**,server/session-key.private}"
+    },
+    "api/admin-auth.js": {
+      "includeFiles": "server/session-key.private"
     }
   },
   "routes": [

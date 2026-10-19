@@ -1,5 +1,6 @@
 import { createHash, createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { DEFAULT_ADMIN_ID, DEFAULT_PASSWORD_HASH, DEFAULT_PASSWORD_SALT } from './default-admin.js';
+import { readFileSync } from 'node:fs';
 
 export const SESSION_SECONDS = 4 * 60 * 60;
 export const COOKIE_NAME = 'portfolio_admin';
@@ -7,10 +8,15 @@ const failures = new Map();
 const WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 5;
 
-export function config(env = process.env) {
+function deploymentSecret() {
+  try { return readFileSync(new URL('./session-key.private',import.meta.url),'utf8').trim(); }
+  catch { return ''; }
+}
+
+export function config(env = process.env, generatedSecret = deploymentSecret()) {
   const id = env.ADMIN_ID || DEFAULT_ADMIN_ID;
   const password = env.ADMIN_PASSWORD || '';
-  const secret = env.ADMIN_SESSION_SECRET || '';
+  const secret = env.ADMIN_SESSION_SECRET || generatedSecret;
   return id.trim() === id && id.length >= 3 && id.length <= 100 && (!password || password.length >= 8) && password.length <= 256 && secret.length >= 32
     ? { id, ...(password ? {password} : {passwordHash:DEFAULT_PASSWORD_HASH}), secret } : null;
 }

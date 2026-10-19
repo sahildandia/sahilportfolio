@@ -8,7 +8,7 @@ try {
   if (!response.ok) throw new Error();
   const state = await response.json();
   if (state.authenticated) location.replace('/admin/');
-  else if (!state.configured) message('Sign-in is not configured yet. Set a private ADMIN_SESSION_SECRET of at least 32 random characters in Vercel, then redeploy.', true);
+  else if (!state.configured) message('Sign-in is not configured correctly. Redeploy the latest code on Vercel, or start the local site with npm run dev.', true);
   else { configured = true; button.disabled = false; message('Enter your private admin credentials.'); }
 } catch { message('Sign-in could not reach the server. Serve this site through Vercel or the Node development server and try again.', true); }
 form.addEventListener('submit', async event => {

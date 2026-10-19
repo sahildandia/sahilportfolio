@@ -16,7 +16,7 @@ def start_server(configured=True):
     variables = dict(os.environ)
     variables.update(PORT="0", VERCEL="0", ADMIN_ID=TEST_ID if configured else "",
                      ADMIN_PASSWORD=TEST_PASSWORD if configured else "",
-                     ADMIN_SESSION_SECRET="fixture-only-signing-key-" * 3 if configured else "")
+                     ADMIN_SESSION_SECRET="fixture-only-signing-key-" * 3 if configured else "invalid-test-override")
     process = subprocess.Popen(["node", "scripts/dev-server.mjs"], cwd=ROOT,
                                env=variables, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     line = process.stdout.readline()
@@ -77,11 +77,11 @@ def main():
             print("PASS real login, protected files, HttpOnly session, lock, draft preservation, and responsive layout")
             missing, missing_base = start_server(False)
             page.goto(missing_base + "/admin/", wait_until="networkidle")
-            expect(page.locator("#login-status")).to_contain_text("not configured")
+            expect(page.locator("#login-status")).to_contain_text("not configured correctly")
             expect(page.locator("#login-button")).to_be_disabled()
             assert page.locator("#content-form").count() == 0
             assert context.request.get(missing_base + "/admin/admin.js").status == 401
-            print("PASS missing production configuration fails closed")
+            print("PASS invalid credential overrides fail closed")
             browser.close()
     finally:
         for child in (process,missing):

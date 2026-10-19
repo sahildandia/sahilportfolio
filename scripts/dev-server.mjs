@@ -5,6 +5,7 @@ import { resolve, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import auth from '../api/admin-auth.js';
 import admin from '../api/admin-page.js';
+import { prepareSessionKey } from '../server/session-key.js';
 export const root = resolve(fileURLToPath(new URL('../',import.meta.url)));
 const types = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.jpg':'image/jpeg','.jpeg':'image/jpeg','.webp':'image/webp','.ttf':'font/ttf','.pdf':'application/pdf','.docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document'};
 export function createDevServer() {
@@ -33,6 +34,7 @@ export function createDevServer() {
   });
 }
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await prepareSessionKey();
   const port = Number(process.env.PORT || 8000);
   const server = createDevServer();
   server.listen(port,'0.0.0.0',()=>console.log(`Portfolio development server listening on port ${server.address().port}.`));
