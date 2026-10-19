@@ -93,6 +93,30 @@
   ],
   "projects": [
     {
+      "id": "campusmate",
+      "title": "CampusMate",
+      "category": "mobile",
+      "type": "Android application · APK",
+      "description": "An Android chat app for anonymous one-to-one conversations and topic-based group rooms, built with React, TypeScript, Capacitor, and Supabase.",
+      "tags": [
+        "Android",
+        "React",
+        "TypeScript",
+        "Capacitor",
+        "Supabase"
+      ],
+      "image": "assets/campusmate-icon.svg",
+      "source": "https://github.com/sahildandia/StrangerTalks",
+      "demo": "",
+      "details": [
+        "Anonymous one-to-one matching with controls to find the next conversation or end a chat.",
+        "Topic-based group rooms with aliases, member lists, typing indicators, and unread-message controls.",
+        "Supabase authentication, database-backed matching, and realtime message updates.",
+        "Mobile interface packaged for Android with Capacitor, including keyboard and scrolling adjustments.",
+        "Reporting and blocking controls with age and privacy consent."
+      ]
+    },
+    {
       "id": "fall",
       "title": "Explainable Fall & SOS Screening",
       "category": "ai",

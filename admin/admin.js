@@ -24,7 +24,7 @@ const definitions = {
   projects: { title: 'project', fields: [
     ['id','Unique project ID',{ help: 'Lowercase letters, numbers, and hyphens. Keep this stable for existing project links.' }],
     ['title','Project title'],
-    ['category','Project category',{ kind:'select', options:[['web','Web & utilities'],['ai','AI & vision'],['data','Databases']] }],
+    ['category','Project category',{ kind:'select', options:[['mobile','Android apps'],['web','Web & utilities'],['ai','AI & vision'],['data','Databases']] }],
     ['type','Project type / subtitle'],
     ['description','Short description',{ kind:'textarea', span:true }],
     ['tags','Technology tags',{ kind:'lines', help:'One technology per line.' }],

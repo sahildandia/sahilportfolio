@@ -25,3 +25,6 @@
 @media(max-width:360px){.container{width:calc(100% - 32px)}.header-contact{display:none}.hero h1{font-size:44px}.hero-photo{height:320px}.vertical-note{max-width:110px}.hero-aside{gap:15px}.scroll-line{font-size:5px;gap:10px}.hero-buttons{gap:13px;font-size:8px}h2{font-size:32px}.certificate-grid{grid-template-columns:1fr}.certificate-card{min-height:200px}.guide-toggle{width:54px;height:54px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}.portrait-polaroid,.skill-card{transform:none!important}}
 .idea-strip b{font-family:Georgia,serif;font-variant-emoji:text;color:#fff}
+
+/* Preserve the Android app icon within its project preview at every size. */
+.project-visual.app-icon-visual{display:grid;place-items:center;background:radial-gradient(ellipse at 50% 35%,#29244c,#0f1020 75%);padding:32px}.project-visual.app-icon-visual>img{width:min(65%,220px);height:auto;aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 18px 25px #0005)}

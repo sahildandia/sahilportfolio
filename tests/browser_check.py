@@ -187,7 +187,7 @@ def verify_public(browser, base, errors, screenshots):
 
     # Verify filtering against source content rather than fixed display counts.
     content = json.loads((ROOT / "assets/content.json").read_text())
-    for category in ("web", "ai", "data", "all"):
+    for category in ("mobile", "web", "ai", "data", "all"):
         page.locator(f'[data-filter="{category}"]').click()
         count = sum(category == "all" or item["category"] == category for item in content["projects"])
         expect(page.locator(".project-card:visible")).to_have_count(count)

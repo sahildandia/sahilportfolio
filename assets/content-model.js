@@ -41,7 +41,7 @@ export function validateContent(data) {
     checkKeys(v,['id','title','category','type','description','tags','image','source','demo','details'],`projects.${i}`);
     for (const k of ['id','title','type','description']) text(v[k],`projects.${i}.${k}`,k === 'description' ? 5000 : 300,true);
     if (typeof v.id !== 'string' || !/^[a-z0-9-]+$/.test(v.id) || ids.has(v.id)) errors.push('Project IDs must be unique lowercase letters, numbers, and hyphens.'); ids.add(v.id);
-    if (!['ai','web','data'].includes(v.category)) errors.push(`projects.${i}.category: choose ai, web, or data.`);
+    if (!['ai','web','data','mobile'].includes(v.category)) errors.push(`projects.${i}.category: choose ai, web, data, or mobile.`);
     arr(v.tags,`projects.${i}.tags`,30).forEach((t,j) => text(t,`projects.${i}.tags.${j}`,100));
     arr(v.details,`projects.${i}.details`,30).forEach((t,j) => text(t,`projects.${i}.details.${j}`));
     url(v.image,`projects.${i}.image`); url(v.source,`projects.${i}.source`,true); url(v.demo,`projects.${i}.demo`,true);
