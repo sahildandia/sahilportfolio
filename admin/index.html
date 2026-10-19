@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' https: data:; connect-src 'self' https://api.github.com; base-uri 'none'; object-src 'none'; form-action 'none'">
+  <meta name="theme-color" content="#f6f3ed">
+  <title>Portfolio Studio — Sahil Kumar</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="admin.css">
+  <script type="module" src="admin.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#editor">Skip to the editor</a>
+  <header class="studio-header">
+    <a class="studio-brand" href="../index.html"><span class="brand-mark" aria-hidden="true">S.</span> Portfolio <strong>Studio</strong></a>
+    <div class="header-actions"><a href="../index.html" class="quiet-link">View portfolio ↗</a><button id="logout-button" class="button subtle" type="button" hidden>Sign out</button></div>
+  </header>
+  <div class="studio-layout">
+    <aside class="sidebar" aria-label="Editor sections">
+      <div class="sidebar-intro"><span class="eyebrow">YOUR SPACE TO CREATE</span><h1>A little polish.<br>A lot of you.</h1><p>Your story, projects, and next chapter. All in one place.</p></div>
+      <nav class="editor-nav"><a href="#profile-section"><span>01</span> Profile & introduction</a><a href="#about-section"><span>02</span> About</a><a href="#skills-section"><span>03</span> Skills</a><a href="#projects-section"><span>04</span> Projects</a><a href="#journey-section"><span>05</span> Education & experience</a><a href="#certifications-section"><span>06</span> Certifications</a><a href="#settings-section"><span>07</span> Site settings</a></nav>
+      <div class="sidebar-note"><span class="connection-dot" id="connection-dot" aria-hidden="true"></span><div><strong id="connection-label">Local editing</strong><p id="connection-status">Connect GitHub when you’re ready to publish.</p></div></div>
+    </aside>
+    <main id="editor" tabindex="-1">
+      <div class="page-heading"><div><span class="eyebrow">THE CONTENT EDITOR</span><h2>Make it yours<span>.</span></h2><p>Edit freely. Preview the details. Publish when it feels right.</p></div><span class="draft-state" id="draft-state">Loading content…</span></div>
+      <section class="connection-card" aria-labelledby="connect-title">
+        <div class="connection-heading"><div><span class="eyebrow">GITHUB CONNECTION</span><h3 id="connect-title">A direct line to your portfolio.</h3></div><span class="small-tag">No backend needed</span></div>
+        <p>Your changes publish as a commit to your repository. Use a fine-grained personal access token with access to this repository and <strong>Contents: Read and write</strong>. The token stays in this tab’s memory and is cleared when you sign out or close the tab.</p>
+        <form id="connection-form" autocomplete="off">
+          <div class="connection-fields"><div class="field"><label for="connection-owner">GitHub owner</label><input id="connection-owner" value="sahildandia" required spellcheck="false" autocapitalize="none"></div><div class="field"><label for="connection-repo">Repository</label><input id="connection-repo" value="sahilportfolio" required spellcheck="false" autocapitalize="none"></div><div class="field"><label for="connection-branch">Branch</label><input id="connection-branch" value="master" required spellcheck="false" autocapitalize="none"></div></div>
+          <div class="token-row"><div class="field"><label for="github-token">Fine-grained access token</label><input id="github-token" name="github-token" type="password" required autocomplete="off" spellcheck="false" autocapitalize="none" placeholder="github_pat_…" aria-describedby="token-help"><small id="token-help">Never paste your token into a content field or a backup file.</small></div><button class="button primary" id="connect-button" type="submit">Connect GitHub <span aria-hidden="true">↗</span></button></div>
+        </form>
+        <div class="connection-footer"><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener noreferrer" class="quiet-link">Create a fine-grained token ↗</a><button class="text-button" id="reload-button" type="button" disabled>Load latest from GitHub</button></div>
+        <p class="connection-help">Connecting checks repository access. GitHub confirms write permission when you publish. Your website updates after its configured deployment finishes.</p>
+      </section>
+      <div id="admin-status" class="admin-status" role="status" aria-live="polite">Loading your current portfolio content…</div>
+      <div id="validation-summary" class="validation-summary" hidden><strong>Please check these fields before previewing or publishing:</strong><ul id="validation-errors"></ul></div>
+      <div class="editor-tools" aria-label="Draft tools"><button id="save-draft" type="button" class="button subtle" disabled>Save local draft</button><button id="load-draft" type="button" class="button subtle" disabled>Restore local draft</button><button id="export-button" type="button" class="button subtle" disabled>Export JSON ↓</button><label class="button subtle import-label" for="import-file">Import JSON ↑<input id="import-file" type="file" accept="application/json,.json" disabled></label><span id="draft-saved-at" class="tool-note">Local drafts contain public content only.</span></div>
+      <form id="content-form" novalidate aria-label="Portfolio content editor"><div class="loading-note">Preparing the editor…</div></form>
+      <footer class="publish-bar"><div><strong id="publish-state">Your current content is being loaded.</strong><p id="publish-note">Preview and local drafts are available without signing in.</p></div><div class="publish-actions"><button id="preview-button" class="button subtle" type="button" disabled>Preview ↗</button><button id="publish-button" class="button primary" type="button" disabled>Publish to GitHub <span aria-hidden="true">↗</span></button></div></footer>
+      <p class="studio-footnote">Made for keeping your portfolio up to date. Changes stay local until you choose to publish.</p>
+    </main>
+  </div>
+</body>
+</html>

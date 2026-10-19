@@ -1,144 +1,142 @@
-(() => {
-  'use strict';
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const themeButton = document.querySelector('#theme-toggle');
-  const setTheme = theme => {
-    document.documentElement.dataset.theme = theme;
-    themeButton.innerHTML = theme === 'dark'
-      ? '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg>'
-      : '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4a8.5 8.5 0 1 0 11.5 11.5Z"/></svg>';
-    themeButton.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`);
-    themeButton.setAttribute('aria-pressed', String(theme === 'dark'));
-    document.querySelector('meta[name="theme-color"]').content = theme === 'dark' ? '#0c0e14' : '#f7f8fc';
-  };
-  let savedTheme;
-  try { savedTheme = localStorage.getItem('sahil-theme'); } catch (_) { /* Storage can be restricted. */ }
-  setTheme(savedTheme === 'light' ? 'light' : 'dark');
-  themeButton.addEventListener('click', () => {
-    const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-    setTheme(theme);
-    try { localStorage.setItem('sahil-theme', theme); } catch (_) { /* Theme still works for this session. */ }
-  });
+import { validateContent } from './content-model.js';
+import { renderContent } from './content-renderer.js';
 
-  const menuButton = document.querySelector('#menu-toggle');
-  const nav = document.querySelector('#main-nav');
-  function closeMenu() { nav.classList.remove('open'); menuButton.setAttribute('aria-expanded', 'false'); menuButton.textContent = '☰'; menuButton.setAttribute('aria-label', 'Open navigation'); }
-  menuButton.addEventListener('click', () => {
-    const open = nav.classList.toggle('open');
-    menuButton.setAttribute('aria-expanded', String(open));
-    menuButton.textContent = open ? '×' : '☰';
-    menuButton.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
-  });
-  nav.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && nav.classList.contains('open')) { closeMenu(); menuButton.focus(); } });
-  document.addEventListener('click', e => { if (!nav.contains(e.target) && !menuButton.contains(e.target)) closeMenu(); });
-
-  const reveals = document.querySelectorAll('.reveal');
-  reducedMotion.addEventListener('change', () => {
-    document.documentElement.classList.toggle('js-motion', !reducedMotion.matches);
-    if (reducedMotion.matches) document.querySelectorAll('[data-tilt]').forEach(el => { el.style.transform = ''; });
-  });
-  if ('IntersectionObserver' in window) {
-    if (!reducedMotion.matches) document.documentElement.classList.add('js-motion');
-    const revealObserver = new IntersectionObserver(entries => entries.forEach(entry => {
-      if (entry.isIntersecting) { entry.target.classList.add('visible'); revealObserver.unobserve(entry.target); }
-    }), { threshold: 0.08 });
-    reveals.forEach(el => revealObserver.observe(el));
-    const sectionObserver = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        nav.querySelectorAll('a').forEach(a => {
-          const active = a.hash === `#${entry.target.id}`;
-          a.classList.toggle('active', active);
-          if (active) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
-        });
-      });
-    }, { rootMargin: '-15% 0px -60% 0px', threshold: 0 });
-    document.querySelectorAll('main section[id]').forEach(el => sectionObserver.observe(el));
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let content;
+let preview = false;
+let loadError = false;
+try {
+  const draft = new URLSearchParams(location.search).has('preview') && sessionStorage.getItem('sahil-portfolio-preview');
+  if (draft) { content = JSON.parse(draft); preview = true; }
+} catch { /* A malformed preview falls back to published content. */ }
+try {
+  if (!content || validateContent(content).length) {
+    preview = false;
+    const response = await fetch(new URL('./content.json', import.meta.url), { cache: 'no-store' });
+    if (!response.ok) throw new Error('Content unavailable');
+    content = await response.json();
+    if (validateContent(content).length) throw new Error('Invalid content');
   }
+} catch {
+  content = JSON.parse(document.querySelector('#content-snapshot').textContent);
+  loadError = true;
+}
+document.querySelector('#site-root').innerHTML = renderContent(content);
+document.body.dataset.ready = 'true';
+document.title = `${content.profile.name} — Developer Portfolio`;
+document.querySelector('meta[name="description"]').content = content.profile.intro;
+const $ = selector => document.querySelector(selector);
+if (preview || loadError) {
+  $('#preview-banner').hidden = false;
+  if (loadError) { $('#preview-banner').innerHTML = '<strong>Updated content could not load.</strong><span>Showing the bundled version.</span><button type="button" id="reload-content">Try again</button>'; $('#reload-content').onclick = () => location.reload(); }
+}
 
-  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    document.querySelectorAll('[data-tilt]').forEach(element => {
-      element.addEventListener('pointermove', e => {
-        if (reducedMotion.matches) return;
-        const r = element.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width - 0.5;
-        const y = (e.clientY - r.top) / r.height - 0.5;
-        element.style.transform = `perspective(1100px) rotateX(${-y * 8}deg) rotateY(${x * 9}deg)`;
-      });
-      element.addEventListener('pointerleave', () => element.style.transform = '');
+const themeButton = $('#theme-toggle');
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  themeButton.textContent = theme === 'dark' ? '☀' : '◐';
+  themeButton.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`);
+  themeButton.setAttribute('aria-pressed', String(theme === 'dark'));
+  $('meta[name="theme-color"]').content = theme === 'dark' ? '#242823' : '#f1efe6';
+}
+let savedTheme;
+try { savedTheme = localStorage.getItem('sahil-editorial-theme'); } catch { /* Theme remains usable without storage. */ }
+setTheme(['light','dark'].includes(savedTheme) ? savedTheme : content.settings.defaultTheme);
+themeButton.addEventListener('click', () => {
+  const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  setTheme(theme);
+  try { localStorage.setItem('sahil-editorial-theme', theme); } catch { /* Session-only theme. */ }
+});
+const nav = $('#main-nav');
+const menu = $('#menu-toggle');
+const closeMenu = () => { nav.classList.remove('open'); menu.setAttribute('aria-expanded','false'); menu.setAttribute('aria-label','Open navigation'); menu.textContent = '☰'; };
+menu.addEventListener('click', () => {
+  const open = nav.classList.toggle('open'); menu.setAttribute('aria-expanded',String(open)); menu.setAttribute('aria-label',`${open?'Close':'Open'} navigation`); menu.textContent = open ? '×' : '☰';
+});
+nav.querySelectorAll('a').forEach(a => a.addEventListener('click',closeMenu));
+document.addEventListener('click', e => { if (!nav.contains(e.target) && !menu.contains(e.target)) closeMenu(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && nav.classList.contains('open')) { closeMenu(); menu.focus(); }
+  if (e.key === 'Escape' && !$('#guide-panel').hidden) closeGuide();
+});
+
+if ('IntersectionObserver' in window) {
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) if (entry.isIntersecting) nav.querySelectorAll('a').forEach(a => {
+      const current = a.hash === '#'+entry.target.id; a.classList.toggle('active',current);
+      if (current) a.setAttribute('aria-current','location'); else a.removeAttribute('aria-current');
     });
-  }
+  }, { rootMargin:'-15% 0px -60% 0px' });
+  document.querySelectorAll('main section[id]').forEach(s => observer.observe(s));
+}
+let scrollQueued = false;
+function updateScroll() { const max = document.documentElement.scrollHeight-innerHeight; $('.reading-progress').style.width = `${max > 0 ? scrollY/max*100 : 0}%`; scrollQueued = false; }
+addEventListener('scroll', () => { if (!scrollQueued) { scrollQueued=true; requestAnimationFrame(updateScroll); } }, {passive:true});
+updateScroll();
+if (matchMedia('(hover: hover) and (pointer: fine)').matches) document.querySelectorAll('[data-tilt]').forEach(el => {
+  el.addEventListener('pointermove', e => { if (reducedMotion.matches) return; const r=el.getBoundingClientRect(); el.style.transform=`perspective(1100px) rotateX(${-(e.clientY-r.top-r.height/2)/r.height*4}deg) rotateY(${(e.clientX-r.left-r.width/2)/r.width*5}deg)`; });
+  el.addEventListener('pointerleave',()=>el.style.transform='');
+});
+reducedMotion.addEventListener('change', () => { if (reducedMotion.matches) document.querySelectorAll('[data-tilt]').forEach(el=>el.style.transform=''); });
 
-  const filters = document.querySelectorAll('.filter');
-  filters.forEach(button => button.addEventListener('click', () => {
-    filters.forEach(b => b.setAttribute('aria-pressed', String(b === button)));
-    let count = 0;
-    document.querySelectorAll('.project-card').forEach(card => {
-      card.hidden = button.dataset.filter !== 'all' && !card.dataset.category.split(' ').includes(button.dataset.filter);
-      if (!card.hidden) count++;
-    });
-    document.querySelector('#filter-status').textContent = `${count} project${count === 1 ? '' : 's'} shown`;
-  }));
+let skillCategory = 'all';
+function filterSkills() {
+  const query = $('#skill-search').value.trim().toLowerCase(); let count=0;
+  document.querySelectorAll('.skill-card').forEach(card=> { card.hidden=(skillCategory!=='all' && card.dataset.category!==skillCategory) || !card.dataset.name.includes(query); if(!card.hidden)count++; });
+  $('#skill-status').textContent = count ? `${count} skills shown` : 'No matching skills. Try another search or category.';
+}
+document.querySelectorAll('[data-skill-filter]').forEach(button=>button.addEventListener('click',()=> {
+  skillCategory=button.dataset.skillFilter;
+  document.querySelectorAll('[data-skill-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button))); filterSkills();
+}));
+$('#skill-search').addEventListener('input',filterSkills);
+document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=> {
+  document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button))); let count=0;
+  document.querySelectorAll('.project-card').forEach(card=>{ card.hidden=button.dataset.filter!=='all' && card.dataset.category!==button.dataset.filter; if(!card.hidden)count++; });
+  $('#filter-status').textContent=`${count} project${count===1?'':'s'} shown`;
+}));
+$('#certificate-search').addEventListener('input',e=>{ let count=0; document.querySelectorAll('.certificate-card').forEach(card=>{card.hidden=!card.dataset.search.includes(e.target.value.trim().toLowerCase()); if(!card.hidden)count++;}); $('#certificate-status').textContent=count?`${count} certifications shown`:'No matching certifications.'; });
 
-  const projectData = {
-    fall: { title: 'Explainable Fall & SOS Screening', type: 'Computer vision · Explainable AI', description: 'A video screening pipeline designed to identify falls and SOS gestures in CCTV clips, with explainable predictions.', points: ['Samples frames at intervals to reduce computation while retaining event coverage.', 'Uses MediaPipe Pose and Hands with OpenCV to extract movement, posture, and gesture features.', 'Classifies segments as FALL, SOS, or NORMAL and uses temporal confirmation to reduce isolated false detections.', 'Uses SHAP to explain which pose and hand features contributed to predictions.'], tags: ['Python', 'MediaPipe', 'OpenCV', 'SHAP'], url: null },
-    movie: { title: 'Movie Ticket Booking System', type: 'Relational databases · Application workflows', description: 'A relational database project for managing movies, theatres, showtimes, seats, and customer bookings.', points: ['Designed tables with appropriate primary keys, foreign keys, and constraints.', 'Implemented booking and seat reservation workflows with SQL joins.', 'Retrieves booking history and analyzes occupancy patterns with aggregate queries.'], tags: ['MySQL', 'SQL', 'DBMS'], url: 'https://github.com/sahildandia/Movie-Ticket-Booking-System' },
-    currency: { title: 'Currency Exchange Calculator', type: 'Utilities · Web interface', description: 'A practical currency conversion project with a simple HTML and CSS interface.', points: ['Converts between currencies through a focused calculator workflow.', 'Includes user account setup and access permissions.', 'Built as a hands-on project in application logic and interface design.'], tags: ['HTML', 'CSS', 'Currency conversion'], url: 'https://github.com/sahildandia/currency-exchange-rate-calculator-' }
-  };
-  const dialog = document.querySelector('#project-dialog');
-  let dialogTrigger;
-  document.querySelectorAll('[data-project]').forEach(button => button.addEventListener('click', () => {
-    const data = projectData[button.dataset.project];
-    dialogTrigger = button;
-    document.querySelector('#dialog-title').textContent = data.title;
-    document.querySelector('#dialog-type').textContent = data.type;
-    document.querySelector('#dialog-description').textContent = data.description;
-    document.querySelector('#dialog-points').replaceChildren(...data.points.map(text => { const li = document.createElement('li'); li.textContent = text; return li; }));
-    document.querySelector('#dialog-tags').replaceChildren(...data.tags.map(text => { const span = document.createElement('span'); span.textContent = text; return span; }));
-    const source = document.querySelector('#dialog-source');
-    source.hidden = !data.url;
-    if (data.url) source.href = data.url; else source.removeAttribute('href');
-    document.querySelector('#dialog-source-note').hidden = Boolean(data.url);
-    dialog.showModal();
-  }));
-  document.querySelector('#dialog-close').addEventListener('click', () => dialog.close());
-  dialog.addEventListener('click', event => { if (event.target === dialog) { const r = dialog.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) dialog.close(); } });
-  dialog.addEventListener('close', () => dialogTrigger?.focus());
+let dialogTrigger;
+const dialog=$('#project-dialog');
+document.querySelectorAll('[data-project]').forEach(button=>button.addEventListener('click',()=> {
+  const project=content.projects.find(p=>p.id===button.dataset.project); if(!project)return; dialogTrigger=button;
+  $('#dialog-title').textContent=project.title; $('#dialog-type').textContent=project.type; $('#dialog-description').textContent=project.description;
+  $('#dialog-points').replaceChildren(...project.details.map(text=>{ const li=document.createElement('li');li.textContent=text;return li;}));
+  $('#dialog-tags').replaceChildren(...project.tags.map(text=>{ const span=document.createElement('span');span.textContent=text;return span;}));
+  for (const key of ['source','demo']) { const link=$('#dialog-'+key); link.hidden=!project[key]; if(project[key])link.href=project[key];else link.removeAttribute('href'); }
+  $('#dialog-source-note').hidden=Boolean(project.source); dialog.showModal();
+}));
+$('#dialog-close').addEventListener('click',()=>dialog.close());
+dialog.addEventListener('close',()=>dialogTrigger?.focus());
+dialog.addEventListener('click',e=>{ if(e.target===dialog){ const r=dialog.getBoundingClientRect();if(e.clientX<r.left ||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();} });
 
-  const copyButton = document.querySelector('#copy-email');
-  copyButton.addEventListener('click', async () => {
-    try {
-      if (!navigator.clipboard) throw new Error('Clipboard unavailable');
-      await navigator.clipboard.writeText('dandiasahil@gmail.com');
-      copyButton.textContent = 'Copied!';
-      document.querySelector('#copy-status').textContent = 'Email address copied.';
-    } catch (_) {
-      copyButton.textContent = 'Select email';
-      const range = document.createRange(); range.selectNodeContents(document.querySelector('#email-link'));
-      const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range);
-      document.querySelector('#copy-status').textContent = 'Select and copy the email address, or use the email link.';
-    }
-  });
-  document.querySelector('#contact-form').addEventListener('submit', e => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    if (!form.reportValidity()) return;
-    const name = form.elements.name.value.trim();
-    const email = form.elements.email.value.trim();
-    const message = form.elements.message.value.trim();
-    if (!name || !message) { document.querySelector('#form-status').textContent = 'Please enter your name and a message.'; return; }
-    const subject = encodeURIComponent(`Portfolio enquiry from ${name}`);
-    const body = encodeURIComponent(`Hi Sahil,\n\n${message}\n\nFrom: ${name}\nEmail: ${email}`);
-    document.querySelector('#form-status').textContent = 'Your email draft is ready. Send it from your email app. If it does not open, use the email link beside this form.';
-    const draftLink = document.querySelector('#email-draft');
-    draftLink.href = `mailto:dandiasahil@gmail.com?subject=${subject}&body=${body}`;
-    draftLink.hidden = false;
-    draftLink.click();
-  });
-  document.querySelector('#year').textContent = new Date().getFullYear();
-  const route = { 'about.html': 'about', 'projects.html': 'work', 'experience.html': 'experience', 'contact.html': 'contact' }[location.pathname.split('/').pop()];
-  if (route && !location.hash) {
-    requestAnimationFrame(() => { document.querySelector(`#${route}`).scrollIntoView({ behavior: 'instant' }); history.replaceState(null, '', `#${route}`); });
-  }
-})();
+$('#copy-email').addEventListener('click',async()=>{
+  try { if(!navigator.clipboard)throw new Error(); await navigator.clipboard.writeText(content.profile.email);$('#copy-email').textContent='Copied';$('#copy-status').textContent='Email address copied.'; }
+  catch { const range=document.createRange();range.selectNodeContents($('#email-link')); const s=getSelection();s.removeAllRanges();s.addRange(range);$('#copy-status').textContent='Select and copy the email address, or use the email link.'; }
+});
+$('#contact-message').addEventListener('input',e=>$('#message-count').textContent=`${e.target.value.length} / 5000`);
+$('#contact-form').addEventListener('submit',e=>{
+  e.preventDefault();const f=e.currentTarget;if(!f.reportValidity())return;
+  const name=f.elements.name.value.trim(),email=f.elements.email.value.trim(),message=f.elements.message.value.trim();
+  if(!name || !message){$('#form-status').textContent='Please enter your name and a message.';return;}
+  const subject=f.elements.subject.value.trim() || `Portfolio enquiry from ${name}`;
+  const body=`Hi ${content.profile.name.split(' ')[0]},\n\n${message}\n\nFrom: ${name}\nEmail: ${email}`;
+  const draft=$('#email-draft'); draft.href=`mailto:${content.profile.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;draft.hidden=false;
+  $('#form-status').textContent='Your email draft is ready. Send it from your email app. If it does not open, use the draft link below.';draft.click();
+});
+
+const guide=$('#guide-panel'); const guideToggle=$('#guide-toggle');
+function closeGuide(){guide.hidden=true;guideToggle.setAttribute('aria-expanded','false');guideToggle.focus();}
+guideToggle.addEventListener('click',()=>{ guide.hidden=!guide.hidden;guideToggle.setAttribute('aria-expanded',String(!guide.hidden));if(!guide.hidden)$('#guide-close').focus(); });
+$('#guide-close').addEventListener('click',closeGuide);
+document.querySelectorAll('[data-guide]').forEach(button=>button.addEventListener('click',()=>{
+  const text={skills:`${content.profile.name} works with ${content.skills.map(s=>s.name).join(', ')}.`,projects:content.projects.map(p=>p.title).join(' · '),contact:`Email ${content.profile.email} or call ${content.profile.phone}. The contact form prepares an email draft for you to send.`}[button.dataset.guide];
+  $('#guide-answer').textContent=text;
+}));
+const route={'about.html':'about','projects.html':'work','experience.html':'experience','contact.html':'contact'}[location.pathname.split('/').pop()];
+const target=location.hash.slice(1) || route;
+if(target && document.getElementById(target))requestAnimationFrame(()=> {document.getElementById(target).scrollIntoView({behavior:'instant'});if(!location.hash)history.replaceState(null,'','#'+target);});
+// The existing 3D study stays optional and transfers its library only on opening.
+let sceneLoaded=false;
+$('.scene-study').addEventListener('toggle',()=>{if($('.scene-study').open&&!sceneLoaded){sceneLoaded=true;import('./hero-scene.js').catch(()=>{});}});

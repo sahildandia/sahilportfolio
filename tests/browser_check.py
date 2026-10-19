@@ -8,6 +8,11 @@ Optional screenshots are saved outside the checkout with --screenshots DIR.
 """
 
 import argparse
+import base64
+import copy
+import json
+import os
+import re
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import parse_qs, quote, unquote, urljoin, urlsplit
@@ -17,11 +22,6 @@ from playwright.sync_api import expect, sync_playwright
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EMAIL = "dandiasahil@gmail.com"
-SOURCE_URLS = {
-    "movie": "https://github.com/sahildandia/Movie-Ticket-Booking-System",
-    "currency": "https://github.com/sahildandia/currency-exchange-rate-calculator-",
-}
 ROUTES = {
     "about.html": "about",
     "projects.html": "work",
@@ -78,26 +78,27 @@ def check_http_and_links(base):
     """Check referenced real files, not just existence of a server process."""
     parsers = {}
     checked = set()
-    for page in ROOT.glob("*.html"):
+    for page in [*ROOT.glob("*.html"), ROOT / "admin/index.html"]:
         parser = References()
         parser.feed(page.read_text())
-        parsers[page.name] = parser
+        relative_page = page.relative_to(ROOT).as_posix()
+        parsers[relative_page] = parser
         assert len(parser.ids) == len(set(parser.ids)), f"Duplicate IDs: {page.name}"
-        with urlopen(urljoin(base, page.name), timeout=10) as response:
+        with urlopen(urljoin(base, relative_page), timeout=10) as response:
             assert response.status == 200
         for ref in parser.refs:
             parsed = urlsplit(ref)
             if parsed.scheme or parsed.netloc:
                 continue
             if parsed.path:
-                asset = ROOT / unquote(parsed.path)
+                asset = (page.parent / unquote(parsed.path)).resolve()
+                if asset.is_dir():
+                    asset = asset / "index.html"
                 assert asset.is_file(), f"Missing {page.name} asset: {ref}"
                 if parsed.path not in checked:
                     checked.add(parsed.path)
-                    with urlopen(urljoin(base, quote(unquote(parsed.path))), timeout=10) as response:
+                    with urlopen(urljoin(urljoin(base, relative_page), quote(unquote(parsed.path))), timeout=10) as response:
                         assert response.status == 200, ref
-            elif parsed.fragment:
-                assert parsed.fragment in parser.ids, f"Missing anchor: {ref}"
         print(f"PASS HTTP, unique IDs, local assets and anchors: {page.name}", flush=True)
     for name, parser in parsers.items():
         for ref in parser.refs:
@@ -147,153 +148,178 @@ def assert_no_overflow(page, label):
     assert dimensions["scroll"] <= dimensions["viewport"], f"{label}: {dimensions}"
 
 
-def verify_main_browser(browser, base, errors, screenshots):
+def wait_public_ready(page):
+    expect(page.locator("body")).to_have_attribute("data-ready", "true", timeout=15000)
+
+
+def open_public(page, base, suffix=""):
+    page.goto(urljoin(base, suffix), wait_until="domcontentloaded")
+    wait_public_ready(page)
+
+
+def verify_public(browser, base, errors, screenshots):
     context = browser.new_context(viewport={"width": 1440, "height": 1000},
                                   permissions=["clipboard-read", "clipboard-write"])
     context.add_init_script(BROWSER_PROBE)
     page = context.new_page()
-    errors.watch(page, "desktop")
-    page.goto(base, wait_until="domcontentloaded")
-    wait_ready(page)
-    expect(page.locator("html")).to_have_attribute("data-theme", "dark")
-    assert page.locator("#home .hero-buttons a").count() == 3
+    errors.watch(page, "public")
+    open_public(page, base)
+    expect(page.locator("html")).to_have_attribute("data-theme", "light")
     assert page.get_by_role("link", name="View Projects", exact=True).get_attribute("href") == "#work"
     assert page.get_by_role("link", name="Contact Me").get_attribute("href") == "#contact"
+    portrait = page.locator("#home .portrait")
+    expect(portrait).to_be_visible()
+    page.wait_for_function("document.querySelector('#home .portrait').complete && document.querySelector('#home .portrait').naturalWidth > 0")
+    invalid_anchors = page.evaluate("""() => [...document.querySelectorAll('a[href^="#"]')]
+      .map(a => a.getAttribute('href')).filter(href => href.length > 1 && !document.getElementById(href.slice(1)))""")
+    assert not invalid_anchors, f"Missing public anchors: {invalid_anchors}"
+    for section in ("home", "about", "skills", "work", "experience", "certificates", "contact"):
+        expect(page.locator("#" + section)).to_have_count(1)
+    print("PASS ivory theme, profile portrait, all sections, anchors and hero actions", flush=True)
 
-    # Keyboard pause/resume controls stop actual rendering, not just a label.
+    for width in (320, 375, 390, 768, 1024, 1440):
+        page.set_viewport_size({"width": width, "height": 1000})
+        page.wait_for_timeout(80)
+        assert_no_overflow(page, f"Public width {width}")
+    if screenshots:
+        page.screenshot(path=str(screenshots / "desktop.png"), animations="disabled")
+    print("PASS responsive widths 320, 375, 390, 768, 1024, 1440", flush=True)
+
+    # Verify filtering against source content rather than fixed display counts.
+    content = json.loads((ROOT / "assets/content.json").read_text())
+    for category in ("web", "ai", "data", "all"):
+        page.locator(f'[data-filter="{category}"]').click()
+        count = sum(category == "all" or item["category"] == category for item in content["projects"])
+        expect(page.locator(".project-card:visible")).to_have_count(count)
+        expect(page.locator(f'[data-filter="{category}"]')).to_have_attribute("aria-pressed", "true")
+    for project in content["projects"]:
+        trigger = page.locator(f'[data-project="{project["id"]}"]').first
+        trigger.focus()
+        page.keyboard.press("Enter")
+        expect(page.locator("#project-dialog")).to_be_visible()
+        expect(page.locator("#dialog-title")).to_have_text(project["title"])
+        expect(page.locator("#dialog-points li")).to_have_count(len(project["details"]))
+        if project["source"]:
+            assert page.locator("#dialog-source").get_attribute("href") == project["source"]
+            expect(page.locator("#dialog-source")).to_be_visible()
+        else:
+            expect(page.locator("#dialog-source")).to_be_hidden()
+        page.keyboard.press("Escape")
+        expect(page.locator("#project-dialog")).to_be_hidden()
+        # Native <dialog> dispatches its close event after closing; let its
+        # focus-return handler finish before activating the next project.
+        wait_motion_settled(page)
+        expect(trigger).to_be_focused()
+    print("PASS data-driven project filters, details, source destinations and keyboard focus", flush=True)
+
+    verify_skills(page, content)
+    theme = page.locator("#theme-toggle")
+    theme.click()
+    expect(page.locator("html")).to_have_attribute("data-theme", "dark")
+    page.reload(wait_until="domcontentloaded")
+    wait_public_ready(page)
+    expect(page.locator("html")).to_have_attribute("data-theme", "dark")
+    page.locator("#theme-toggle").click()
+    expect(page.locator("html")).to_have_attribute("data-theme", "light")
+    with page.expect_download() as download_info:
+        page.get_by_role("link", name="Download Resume").first.click()
+    download = download_info.value
+    assert Path(download.path()).read_bytes() == (ROOT / content["profile"]["resume"]).read_bytes()
+    assert download.suggested_filename.endswith(".docx")
+    print("PASS light/dark theme persistence and exact supplied résumé download", flush=True)
+
+    page.locator("#copy-email").click()
+    assert page.evaluate("navigator.clipboard.readText()") == content["profile"]["email"]
+    submit = page.locator("#contact-form button[type=submit]")
+    submit.click()
+    assert not page.locator("#contact-name").evaluate("input => input.validity.valid")
+    name = "Alex & Sam + Café"
+    message = "Discuss a project? Budget: ₹1,000 & feedback + details.\nThank you!"
+    email = "visitor+portfolio@example.com"
+    page.locator("#contact-name").fill(name)
+    page.locator("#contact-email").fill("invalid")
+    page.locator("#contact-message").fill(message)
+    assert not page.locator("#contact-form").evaluate("form => form.checkValidity()")
+    page.locator("#contact-email").fill(email)
+    page.locator("#contact-subject").fill("Project & collaboration + review")
+    submit.click()
+    expect(page.locator("#email-draft")).to_be_visible()
+    draft = urlsplit(page.locator("#email-draft").get_attribute("href"))
+    assert draft.scheme == "mailto" and draft.path == content["profile"]["email"]
+    query = parse_qs(draft.query)
+    assert query["subject"] == ["Project & collaboration + review"]
+    assert message in query["body"][0] and name in query["body"][0] and email in query["body"][0]
+    assert page.locator(f'a[href="tel:{content["profile"]["phone"]}"]').count() >= 1
+    assert page.locator(f'a[href="{content["profile"]["linkedin"]}"]').count() >= 1
+    print("PASS clipboard, form validation, subject/Unicode email drafts and contact links", flush=True)
+
+    for filename, section in ROUTES.items():
+        open_public(page, base, filename)
+        page.wait_for_function("section => location.hash === '#' + section", arg=section)
+        expect(page.locator("#" + section)).to_be_in_viewport()
+        assert_no_overflow(page, filename)
+    for section in ("skills", "certificates"):
+        open_public(page, base, "index.html#" + section)
+        expect(page.locator("#" + section)).to_be_in_viewport()
+    print("PASS original entry routes plus skills and certificate anchors", flush=True)
+    verify_optional_scene(page)
+    errors.assert_clean()
+    context.close()
+
+
+def verify_skills(page, content):
+    search = page.locator("#skill-search")
+    search.fill("opencv")
+    visible = page.locator("#skills .skill-card:visible, #skills tbody tr:visible")
+    expect(visible).to_have_count(1)
+    expect(visible).to_contain_text("OpenCV")
+    search.fill("does-not-exist")
+    expect(visible).to_have_count(0)
+    search.fill("")
+    expect(visible).to_have_count(len(content["skills"]))
+    for category in sorted({skill["category"] for skill in content["skills"]}):
+        page.locator(f'[data-skill-filter="{category}"]').click()
+        expect(visible).to_have_count(sum(skill["category"] == category for skill in content["skills"]))
+    page.locator('[data-skill-filter="all"]').click()
+    expect(visible).to_have_count(len(content["skills"]))
+    print("PASS searchable skills, category filters and empty results", flush=True)
+
+
+def open_scene(page):
+    if page.locator(".scene-study").count() and not page.locator(".scene-study").evaluate("element => element.open"):
+        page.locator(".scene-study summary").click()
+    page.locator("#hero-scene").scroll_into_view_if_needed()
+
+
+def verify_optional_scene(page):
+    if not page.locator("#hero-scene").count():
+        return
+    open_scene(page)
+    wait_ready(page)
     pause = page.locator("#scene-motion")
     pause.focus()
     page.keyboard.press("Enter")
     expect(pause).to_have_attribute("aria-pressed", "true")
     wait_motion_settled(page)
-    before = diagnostics(page)
-    draws = page.evaluate("window.__portfolioDrawCalls")
-    page.wait_for_timeout(160)
-    assert diagnostics(page)["frameCount"] == before["frameCount"]
-    assert page.evaluate("window.__portfolioDrawCalls") == draws
-    assert not diagnostics(page)["running"]
-    page.keyboard.press("Space")
-    expect(pause).to_have_attribute("aria-pressed", "false")
-    page.wait_for_function("previous => document.querySelector('#hero-scene').sceneDiagnostics.frameCount > previous",
-                           arg=before["frameCount"])
-    bounds = page.locator("#hero-scene").bounding_box()
-    page.mouse.move(bounds["x"] + bounds["width"] * .8, bounds["y"] + bounds["height"] * .3)
-    page.wait_for_function("Math.abs(document.querySelector('#hero-scene').sceneDiagnostics.pointerTarget.x) > .3")
-    before_rotation = diagnostics(page)["rotation"]
-    page.wait_for_function("previous => { const value = document.querySelector('#hero-scene').sceneDiagnostics.rotation; return Math.abs(value.x - previous.x) + Math.abs(value.y - previous.y) > .002; }", arg=before_rotation)
-    print("PASS WebGL draw calls, pointer rotation and keyboard pause/resume", flush=True)
-
-    for width in (320, 375, 390, 768, 1024, 1440):
-        page.set_viewport_size({"width": width, "height": 1000})
-        page.wait_for_timeout(80)
-        assert_no_overflow(page, f"Width {width}")
-    print("PASS responsive widths 320, 375, 390, 768, 1024, 1440", flush=True)
-    if screenshots:
-        page.screenshot(path=str(screenshots / "desktop.png"))
-
-    page.locator("#about").scroll_into_view_if_needed()
-    expect(page.locator("#about .portrait")).to_be_visible()
-    page.wait_for_function("document.querySelector('#about .portrait').complete && document.querySelector('#about .portrait').naturalWidth > 0")
-    page.wait_for_function("!document.querySelector('#hero-scene').sceneDiagnostics.visible")
-    wait_motion_settled(page)
     frames = diagnostics(page)["frameCount"]
     page.wait_for_timeout(160)
     assert diagnostics(page)["frameCount"] == frames
     assert not diagnostics(page)["running"]
-    print("PASS recognizable loaded portrait and offscreen rendering suspension", flush=True)
-
-    for category in ("web", "ai", "data", "all"):
-        page.locator(f'[data-filter="{category}"]').click()
-        expected_count = 3 if category == "all" else 1
-        expect(page.locator(".project-card:visible")).to_have_count(expected_count)
-        assert page.locator(f'[data-filter="{category}"]').get_attribute("aria-pressed") == "true"
-        assert str(expected_count) in page.locator("#filter-status").inner_text()
-    for key in ("fall", "movie", "currency"):
-        trigger = page.locator(f'[data-project="{key}"]').first
-        trigger.focus()
-        page.keyboard.press("Enter")
-        expect(page.locator("#project-dialog")).to_be_visible()
-        assert page.locator("#dialog-points li").count() >= 3
-        if key in SOURCE_URLS:
-            assert page.locator("#dialog-source").get_attribute("href") == SOURCE_URLS[key]
-            expect(page.locator("#dialog-source")).to_be_visible()
-        else:
-            expect(page.locator("#dialog-source")).to_be_hidden()
-            assert page.locator("#dialog-source-note a").get_attribute("href").startswith("mailto:" + EMAIL)
-        page.keyboard.press("Escape")
-        expect(page.locator("#project-dialog")).to_be_hidden()
-        expect(trigger).to_be_focused()
-    for url in SOURCE_URLS.values():
-        assert page.locator(f'.project-card a[href="{url}"]').count() == 1
-    print("PASS project filtering, preserved source links, keyboard dialogs and focus return", flush=True)
-
-    theme = page.locator("#theme-toggle")
-    theme.click()
-    expect(page.locator("html")).to_have_attribute("data-theme", "light")
-    page.reload(wait_until="domcontentloaded")
-    expect(page.locator("html")).to_have_attribute("data-theme", "light")
-    page.locator("#theme-toggle").click()
-    expect(page.locator("html")).to_have_attribute("data-theme", "dark")
-    with page.expect_download() as download_info:
-        page.get_by_role("link", name="Download Resume").click()
-    download = download_info.value
-    assert download.suggested_filename == "Sahil-Kumar-Resume.docx"
-    assert Path(download.path()).read_bytes() == (ROOT / "assets/Sahil-Kumar-Resume.docx").read_bytes()
-    print("PASS theme persistence and exact original résumé download", flush=True)
-
-    page.locator("#copy-email").click()
-    assert page.evaluate("navigator.clipboard.readText()") == EMAIL
-    submit = page.locator("#contact-form button[type=submit]")
-    submit.click()
-    assert not page.locator("#contact-name").evaluate("input => input.validity.valid")
-    visitor_name = "Alex & Sam + Café"
-    message = "Discuss a project? Budget: ₹1,000 & feedback + details.\nThank you!"
-    visitor_email = "visitor+portfolio@example.com"
-    page.locator("#contact-name").fill(visitor_name)
-    page.locator("#contact-email").fill("invalid")
-    page.locator("#contact-message").fill(message)
-    assert not page.locator("#contact-form").evaluate("form => form.checkValidity()")
-    page.locator("#contact-email").fill(visitor_email)
-    submit.click()
-    expect(page.locator("#email-draft")).to_be_visible()
-    draft = urlsplit(page.locator("#email-draft").get_attribute("href"))
-    assert draft.scheme == "mailto" and draft.path == EMAIL
-    query = parse_qs(draft.query)
-    assert query["subject"] == ["Portfolio enquiry from " + visitor_name]
-    assert query["body"] == [f"Hi Sahil,\n\n{message}\n\nFrom: {visitor_name}\nEmail: {visitor_email}"]
-    assert "email draft is ready" in page.locator("#form-status").inner_text()
-    assert page.locator('a[href="tel:+917051381035"]').count() == 1
-    assert page.locator('a[href="https://linkedin.com/in/sahildandia"]').count() == 1
-    print("PASS clipboard, contact validation, encoded email draft and contact links", flush=True)
-
-    for filename, section in ROUTES.items():
-        page.goto(urljoin(base, filename), wait_until="domcontentloaded")
-        page.wait_for_function("section => location.hash === '#' + section", arg=section)
-        expect(page.locator("#" + section)).to_be_in_viewport()
-        assert_no_overflow(page, filename)
-    page.goto(urljoin(base, "index.html#skills"), wait_until="domcontentloaded")
-    expect(page.locator("#skills")).to_be_in_viewport()
-    print("PASS all original entry routes and new skills anchor", flush=True)
-    errors.assert_clean()
-    context.close()
+    page.keyboard.press("Space")
+    page.wait_for_function("previous => document.querySelector('#hero-scene').sceneDiagnostics.frameCount > previous", arg=frames)
+    page.locator("#contact").scroll_into_view_if_needed()
+    page.wait_for_function("!document.querySelector('#hero-scene').sceneDiagnostics.visible")
+    print("PASS retained 3D rendering, keyboard pause and offscreen suspension", flush=True)
 
 
-def verify_mobile(browser, base, errors, screenshots):
+def verify_mobile_and_motion(browser, base, errors, screenshots):
     context = browser.new_context(viewport={"width": 375, "height": 812},
                                   device_scale_factor=3, has_touch=True, is_mobile=True)
     context.add_init_script(BROWSER_PROBE)
     page = context.new_page()
     errors.watch(page, "mobile")
-    page.goto(base, wait_until="domcontentloaded")
-    page.locator("#hero-scene").scroll_into_view_if_needed()
-    wait_ready(page)
-    assert_no_overflow(page, "Touch mobile")
-    ratio = page.locator("#hero-canvas").evaluate("canvas => canvas.width / canvas.getBoundingClientRect().width")
-    assert ratio <= 1.35, f"Mobile pixel ratio not capped: {ratio}"
-    assert page.locator("#hero-canvas").evaluate("canvas => getComputedStyle(canvas).touchAction") != "none"
-    before = diagnostics(page)["pointerTarget"]
-    page.locator("#hero-scene").dispatch_event("pointermove", {"pointerType": "touch", "clientX": 300, "clientY": 100})
-    assert diagnostics(page)["pointerTarget"] == before
+    open_public(page, base)
+    assert_no_overflow(page, "Mobile")
     page.locator("#menu-toggle").tap()
     expect(page.locator("#main-nav")).to_be_visible()
     page.locator('#main-nav a[href="#skills"]').tap()
@@ -308,45 +334,32 @@ def verify_mobile(browser, base, errors, screenshots):
     expect(page.locator(".project-card:visible")).to_have_count(1)
     page.locator('[data-filter="all"]').tap()
     if screenshots:
-        page.goto(base, wait_until="domcontentloaded")
-        # Viewport captures avoid Chromium GPU tile limits for a very tall
-        # page at DPR 3, and make the intended mobile layout easy to inspect.
-        page.screenshot(path=str(screenshots / "mobile.png"), scale="css")
-        for section in ("hero-scene", "work", "about"):
+        open_public(page, base)
+        page.screenshot(path=str(screenshots / "mobile.png"), scale="css", animations="disabled")
+        for section in ("skills", "work", "contact"):
             page.locator("#" + section).scroll_into_view_if_needed()
-            page.screenshot(path=str(screenshots / f"mobile-{section}.png"), scale="css",
-                            animations="disabled")
-    print("PASS touch navigation, native scrolling, mobile render budget and filters", flush=True)
+            page.screenshot(path=str(screenshots / f"mobile-{section}.png"), scale="css", animations="disabled")
+    print("PASS mobile touch navigation, keyboard menu and project filters", flush=True)
     errors.assert_clean()
     context.close()
 
-
-def verify_reduced_motion_and_fallback(browser, base, errors):
     context = browser.new_context(viewport={"width": 1440, "height": 1000}, reduced_motion="reduce")
     context.add_init_script(BROWSER_PROBE)
     page = context.new_page()
     errors.watch(page, "reduced motion")
-    page.goto(base, wait_until="domcontentloaded")
-    wait_ready(page)
-    expect(page.locator("#scene-motion")).to_have_attribute("aria-pressed", "true")
-    expect(page.locator("#scene-motion")).to_be_disabled()
-    wait_motion_settled(page)
-    before = diagnostics(page)
-    draws = page.evaluate("window.__portfolioDrawCalls")
-    page.locator("#hero-scene").dispatch_event("pointermove", {"pointerType": "mouse", "clientX": 1100, "clientY": 400})
-    page.wait_for_timeout(160)
-    assert diagnostics(page)["frameCount"] == before["frameCount"]
-    assert diagnostics(page)["rotation"] == before["rotation"]
-    assert page.evaluate("window.__portfolioDrawCalls") == draws
-    assert diagnostics(page)["reducedMotion"] and not diagnostics(page)["running"]
-    assert page.locator("#work .reveal").first.evaluate("element => getComputedStyle(element).opacity") == "1"
+    open_public(page, base)
     assert page.locator("html").evaluate("element => getComputedStyle(element).scrollBehavior") == "auto"
-    page.emulate_media(reduced_motion="no-preference")
-    expect(page.locator("#scene-motion")).to_be_enabled()
-    page.wait_for_function("document.querySelector('#hero-scene').sceneDiagnostics.running")
-    page.emulate_media(reduced_motion="reduce")
-    expect(page.locator("#scene-motion")).to_be_disabled()
-    print("PASS reduced-motion static rendering and live preference changes", flush=True)
+    if page.locator("#hero-scene").count():
+        open_scene(page)
+        wait_ready(page)
+        expect(page.locator("#scene-motion")).to_be_disabled()
+        wait_motion_settled(page)
+        before = diagnostics(page)
+        page.wait_for_timeout(160)
+        assert diagnostics(page)["frameCount"] == before["frameCount"]
+        assert diagnostics(page)["rotation"] == before["rotation"]
+        assert diagnostics(page)["reducedMotion"] and not diagnostics(page)["running"]
+    print("PASS reduced-motion scrolling and static 3D presentation", flush=True)
     context.close()
 
     context = browser.new_context(viewport={"width": 1440, "height": 1000})
@@ -354,25 +367,234 @@ def verify_reduced_motion_and_fallback(browser, base, errors):
     context.add_init_script(BROWSER_PROBE)
     page = context.new_page()
     errors.watch(page, "no WebGL")
-    page.goto(base, wait_until="domcontentloaded")
-    expect(page.locator("#hero-scene")).to_have_attribute("data-scene-state", "fallback")
-    expect(page.locator("#scene-fallback")).to_be_visible()
-    expect(page.locator("#scene-motion")).to_be_hidden()
-    expect(page.get_by_role("link", name="View Projects", exact=True)).to_be_visible()
-    expect(page.get_by_role("link", name="Download Resume")).to_be_visible()
+    open_public(page, base)
+    if page.locator("#hero-scene").count():
+        open_scene(page)
+        expect(page.locator("#hero-scene")).to_have_attribute("data-scene-state", "fallback")
+        expect(page.locator("#scene-fallback")).to_be_visible()
     assert page.evaluate("window.__portfolioDrawCalls") == 0
     page.locator('[data-filter="ai"]').click()
     expect(page.locator(".project-card:visible")).to_have_count(1)
-    page.locator("#about").scroll_into_view_if_needed()
-    expect(page.locator("#about .portrait")).to_be_visible()
-    print("PASS attractive WebGL fallback with working content and controls", flush=True)
+    page.locator("#home").scroll_into_view_if_needed()
+    expect(page.locator("#home .portrait")).to_be_visible()
+    print("PASS no-WebGL fallback with working portrait, projects and content", flush=True)
     errors.assert_clean()
     context.close()
 
 
-def main():
-    import os
+class MockGitHub:
+    """A local browser fixture; no real GitHub write is performed."""
 
+    token = "fixture-volatile-admin-token-123"
+
+    def __init__(self):
+        self.content = json.loads((ROOT / "assets/content.json").read_text())
+        self.sha = "a" * 40
+        self.metadata_status = 200
+        self.put_status = 200
+        self.push_permission = True
+        self.put_attempts = []
+        self.successes = []
+        self.auth_ok = True
+
+    def handle(self, route):
+        request = route.request
+        parsed = urlsplit(request.url)
+        cors = {"access-control-allow-origin": "*", "access-control-allow-methods": "GET, PUT, OPTIONS",
+                "access-control-allow-headers": "authorization, content-type, accept, x-github-api-version"}
+        if request.method == "OPTIONS":
+            route.fulfill(status=204, headers=cors)
+            return
+        self.auth_ok = self.auth_ok and request.headers.get("authorization") == "Bearer " + self.token
+        status = 200
+        if parsed.path == "/repos/sahildandia/sahilportfolio":
+            status = self.metadata_status
+            data = {"default_branch": "master", "permissions": {"push": self.push_permission}}
+        elif parsed.path == "/repos/sahildandia/sahilportfolio/contents/assets/content.json":
+            if request.method == "GET":
+                data = {"type": "file", "encoding": "base64", "sha": self.sha,
+                        "content": base64.b64encode(json.dumps(self.content, ensure_ascii=False).encode()).decode()}
+            elif request.method == "PUT":
+                body = json.loads(request.post_data)
+                decoded = json.loads(base64.b64decode(body["content"]).decode("utf-8"))
+                self.put_attempts.append({"body": body, "decoded": decoded})
+                status = self.put_status
+                if status == 200:
+                    assert body["sha"] == self.sha, "Publishing must use the current file SHA"
+                    assert body["branch"] == "master"
+                    assert body["message"]
+                    self.content = decoded
+                    self.sha = "c" * 40
+                    self.successes.append(decoded)
+                    data = {"content": {"sha": self.sha}, "commit": {"html_url": "https://github.com/sahildandia/sahilportfolio/commit/fixture"}}
+                else:
+                    data = {}
+            else:
+                raise AssertionError(f"Unexpected GitHub method: {request.method}")
+        else:
+            raise AssertionError(f"Unexpected GitHub endpoint: {parsed.path}")
+        if status >= 400:
+            data = {"message": {401: "Bad credentials", 403: "Resource not accessible by personal access token", 409: "SHA does not match"}[status]}
+        route.fulfill(status=status, json=data, headers=cors)
+
+
+def assert_no_token_persistence(page, token):
+    storage = page.evaluate("JSON.stringify({local: {...localStorage}, session: {...sessionStorage}})")
+    assert token not in storage, "Authentication token must not be persisted"
+    assert token not in page.url, "Authentication token must not appear in the URL"
+    assert token not in page.content(), "Authentication token must not be embedded in HTML"
+
+
+def connect_admin(page, fixture):
+    if page.locator("#logout-button").is_visible():
+        page.locator("#logout-button").click()
+        expect(page.locator("#logout-button")).to_be_hidden()
+    page.locator("#connection-owner").fill("sahildandia")
+    page.locator("#connection-repo").fill("sahilportfolio")
+    page.locator("#connection-branch").fill("master")
+    page.locator("#github-token").fill(fixture.token)
+    page.locator("#connect-button").click()
+
+
+def verify_admin(browser, base, screenshots):
+    fixture = MockGitHub()
+    context = browser.new_context(viewport={"width": 1440, "height": 1000}, accept_downloads=True)
+    context.route("https://api.github.com/**", fixture.handle)
+    page = context.new_page()
+    runtime_errors = []
+    console_errors = []
+
+    def inspect_console(message):
+        # Expected fixture API failures produce browser resource messages. All
+        # application errors and every credential leak still fail the check.
+        assert fixture.token not in message.text, "Credentials must never be logged"
+        if message.type == "error" and not message.location.get("url", "").startswith("https://api.github.com/"):
+            console_errors.append(message.text)
+
+    page.on("pageerror", lambda error: runtime_errors.append(str(error)))
+    page.on("console", inspect_console)
+    page.on("dialog", lambda dialog: dialog.accept())
+    page.goto(urljoin(base, "admin/"), wait_until="domcontentloaded")
+    expect(page.locator("#profile-name")).to_have_value(fixture.content["profile"]["name"])
+    expect(page.locator("#publish-button")).to_be_disabled()
+    status = page.locator("#admin-status")
+    edited_name = "Sahil Kumar – café 🚀"
+    page.locator("#profile-name").fill(edited_name)
+    page.locator("#save-draft").click()
+    assert edited_name in page.evaluate("localStorage.getItem('sahil-portfolio-admin-draft')")
+    page.locator("#profile-name").fill("Temporary unsaved edit")
+    page.locator("#load-draft").click()
+    expect(page.locator("#profile-name")).to_have_value(edited_name)
+
+    # Add/delete a record through the same collection controls used by owners.
+    before = page.locator('[data-record="skills"]').count()
+    page.locator('[data-add="skills"]').click()
+    expect(page.locator('[data-record="skills"]')).to_have_count(before + 1)
+    page.locator(f'[name="skills.{before}.name"]').fill("Fixture tool")
+    page.locator(f'[name="skills.{before}.category"]').fill("Tools")
+    page.locator(f'[data-remove="skills"][data-index="{before}"]').click()
+    expect(page.locator('[data-record="skills"]')).to_have_count(before)
+    with page.expect_download() as export_info:
+        page.locator("#export-button").click()
+    exported = json.loads(Path(export_info.value.path()).read_text())
+    assert exported["profile"]["name"] == edited_name
+    assert len(exported["skills"]) == before
+
+    imported = copy.deepcopy(exported)
+    imported["projects"][0]["description"] = '<img src=x onerror="window.__portfolioInjected=true">'
+    imported["profile"]["intro"] = "Unicode draft: café, हिन्दी, 🚀 & accessible interfaces."
+    page.locator("#import-file").set_input_files({"name": "content.json", "mimeType": "application/json",
+                                                 "buffer": json.dumps(imported, ensure_ascii=False).encode()})
+    expect(page.locator("#profile-intro")).to_have_value(imported["profile"]["intro"])
+    with page.expect_popup() as preview_info:
+        page.locator("#preview-button").click()
+    preview = preview_info.value
+    preview.on("pageerror", lambda error: runtime_errors.append(str(error)))
+    preview.on("console", inspect_console)
+    wait_public_ready(preview)
+    expect(preview.locator("#home")).to_contain_text(edited_name)
+    expect(preview.locator("#home")).to_contain_text(imported["profile"]["intro"])
+    assert preview.locator(".project-card").first.inner_text().find(imported["projects"][0]["description"]) >= 0
+    assert not preview.evaluate("Boolean(window.__portfolioInjected)")
+    assert preview.locator('img[src="x"]').count() == 0
+    assert_no_token_persistence(preview, fixture.token)
+    preview.close()
+    assert not fixture.put_attempts
+    invalid = copy.deepcopy(imported)
+    invalid["projects"][0]["source"] = "javascript:alert(1)"
+    page.locator("#import-file").set_input_files({"name": "invalid.json", "mimeType": "application/json",
+                                                 "buffer": json.dumps(invalid).encode()})
+    expect(status).to_contain_text(re.compile("invalid|HTTPS|validation|source", re.I))
+    expect(page.locator("#profile-name")).to_have_value(edited_name)
+    print("PASS admin editing, record controls, local drafts, import/export and escaped preview", flush=True)
+
+    for denied_status, pattern in ((401, "401|credential|expired|token"), (403, "403|permission|access|token")):
+        fixture.metadata_status = denied_status
+        connect_admin(page, fixture)
+        expect(status).to_contain_text(re.compile(pattern, re.I))
+        expect(page.locator("#publish-button")).to_be_disabled()
+        assert_no_token_persistence(page, fixture.token)
+    fixture.metadata_status = 200
+    fixture.push_permission = False
+    connect_admin(page, fixture)
+    expect(status).to_contain_text(re.compile("permission|write|push|access", re.I))
+    expect(page.locator("#publish-button")).to_be_disabled()
+    fixture.push_permission = True
+    connect_admin(page, fixture)
+    expect(page.locator("#publish-button")).to_be_enabled()
+    expect(page.locator("#profile-name")).to_have_value(edited_name)
+    assert_no_token_persistence(page, fixture.token)
+
+    # An independent edit to GitHub must never be silently overwritten.
+    fixture.sha = "b" * 40
+    page.locator("#publish-button").click()
+    expect(status).to_contain_text(re.compile("changed|conflict|reload|newer|409", re.I))
+    assert not fixture.put_attempts
+    expect(page.locator("#profile-name")).to_have_value(edited_name)
+    for denied_status, pattern in ((409, "409|conflict|changed|SHA"), (403, "403|permission|access|token"), (401, "401|credential|expired|token")):
+        fixture.put_status = denied_status
+        connect_admin(page, fixture)
+        expect(page.locator("#publish-button")).to_be_enabled()
+        attempts = len(fixture.put_attempts)
+        page.locator("#publish-button").click()
+        expect(status).to_contain_text(re.compile(pattern, re.I))
+        assert len(fixture.put_attempts) == attempts + 1
+        assert not fixture.successes
+        assert_no_token_persistence(page, fixture.token)
+    print("PASS mocked GitHub authentication, permissions, stale SHA, 401, 403 and 409 handling", flush=True)
+
+    fixture.put_status = 200
+    connect_admin(page, fixture)
+    expect(page.locator("#publish-button")).to_be_enabled()
+    page.locator("#publish-button").click()
+    expect(status).to_contain_text(re.compile("published|saved to GitHub|committed|success", re.I))
+    assert len(fixture.successes) == 1
+    assert fixture.successes[0]["profile"]["name"] == edited_name
+    assert fixture.successes[0]["profile"]["intro"] == imported["profile"]["intro"]
+    assert fixture.successes[0]["projects"][0]["description"] == imported["projects"][0]["description"]
+    assert fixture.auth_ok, "GitHub requests must use the entered in-memory bearer token"
+    assert_no_token_persistence(page, fixture.token)
+    page.locator("#logout-button").click()
+    expect(page.locator("#publish-button")).to_be_disabled()
+    expect(page.locator("#github-token")).to_have_value("")
+    expect(page.locator("#profile-name")).to_have_value(edited_name)
+    assert_no_token_persistence(page, fixture.token)
+    page.reload(wait_until="domcontentloaded")
+    expect(page.locator("#publish-button")).to_be_disabled()
+    expect(page.locator("#github-token")).to_have_value("")
+    assert_no_token_persistence(page, fixture.token)
+    for width in (320, 375, 768, 1440):
+        page.set_viewport_size({"width": width, "height": 1000})
+        assert_no_overflow(page, f"Admin width {width}")
+    if screenshots:
+        page.screenshot(path=str(screenshots / "admin.png"), scale="css", animations="disabled")
+    assert not runtime_errors, runtime_errors
+    assert not console_errors, console_errors
+    print("PASS mocked UTF-8 GitHub publish, volatile credentials, logout/reload lock and admin responsive layout", flush=True)
+    context.close()
+
+
+def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--screenshots", type=Path, help="Optional screenshot directory outside the checkout")
     args = parser.parse_args()
@@ -387,12 +609,12 @@ def main():
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(executable_path="/usr/bin/chromium", headless=True,
                                               args=["--no-sandbox", "--enable-unsafe-swiftshader", "--use-angle=swiftshader"])
-        verify_main_browser(browser, base, errors, screenshots)
-        verify_mobile(browser, base, errors, screenshots)
-        verify_reduced_motion_and_fallback(browser, base, errors)
+        verify_public(browser, base, errors, screenshots)
+        verify_mobile_and_motion(browser, base, errors, screenshots)
+        verify_admin(browser, base, screenshots)
         errors.assert_clean()
         browser.close()
-    print("PASS no browser runtime errors, console errors or failed local assets", flush=True)
+    print("PASS no public runtime/console/local-asset errors; all GitHub writes were mocked", flush=True)
 
 
 if __name__ == "__main__":

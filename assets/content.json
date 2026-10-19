@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "profile": {
+    "name": "Sahil Kumar",
+    "brand": "Sahil.dev",
+    "initials": "SK",
+    "role": "Computer Science student · Developer",
+    "location": "Jammu, India",
+    "studyLocation": "Karur, Tamil Nadu",
+    "email": "dandiasahil@gmail.com",
+    "phone": "+917051381035",
+    "github": "https://github.com/sahildandia",
+    "linkedin": "https://linkedin.com/in/sahildandia",
+    "portrait": "assets/sahil-portrait.png",
+    "resume": "assets/Sahil-Kumar-Resume.docx",
+    "headline": "I build software",
+    "headlineAccent": "with purpose.",
+    "intro": "Computer Science student. Developer. Exploring the space between useful software, thoughtful interfaces, and real-world problems."
+  },
+  "about": {
+    "title": "Curious by nature.",
+    "accent": "Builder by choice.",
+    "paragraphs": [
+      "I’m a Computer Science & Engineering student at M. Kumarasamy College of Engineering. I enjoy connecting thoughtful interfaces with solid application logic — and exploring how technology can solve practical problems.",
+      "My interests span full-stack development, relational databases, and computer vision. I’m especially interested in efficient, offline-first solutions for rural India."
+    ]
+  },
+  "skills": [
+    {
+      "name": "Java",
+      "category": "Languages"
+    },
+    {
+      "name": "Python",
+      "category": "Languages"
+    },
+    {
+      "name": "SQL",
+      "category": "Languages"
+    },
+    {
+      "name": "HTML",
+      "category": "Web"
+    },
+    {
+      "name": "CSS",
+      "category": "Web"
+    },
+    {
+      "name": "React",
+      "category": "Web"
+    },
+    {
+      "name": "Node.js",
+      "category": "Web"
+    },
+    {
+      "name": "MySQL",
+      "category": "Databases"
+    },
+    {
+      "name": "JDBC",
+      "category": "Databases"
+    },
+    {
+      "name": "Relational design",
+      "category": "Databases"
+    },
+    {
+      "name": "MediaPipe",
+      "category": "AI & vision"
+    },
+    {
+      "name": "OpenCV",
+      "category": "AI & vision"
+    },
+    {
+      "name": "SHAP",
+      "category": "AI & vision"
+    },
+    {
+      "name": "Git",
+      "category": "Tools"
+    },
+    {
+      "name": "GitHub",
+      "category": "Tools"
+    },
+    {
+      "name": "VS Code",
+      "category": "Tools"
+    }
+  ],
+  "projects": [
+    {
+      "id": "fall",
+      "title": "Explainable Fall & SOS Screening",
+      "category": "ai",
+      "type": "AI & computer vision",
+      "description": "A video screening pipeline designed to identify falls and SOS gestures in CCTV clips, with explainable predictions.",
+      "tags": [
+        "Python",
+        "MediaPipe",
+        "OpenCV",
+        "SHAP"
+      ],
+      "image": "",
+      "source": "",
+      "demo": "",
+      "details": [
+        "Samples frames at intervals to reduce computation while retaining event coverage.",
+        "Uses MediaPipe Pose and Hands with OpenCV to extract movement, posture, and gesture features.",
+        "Classifies segments as FALL, SOS, or NORMAL and uses temporal confirmation to reduce isolated false detections.",
+        "Uses SHAP to explain which pose and hand features contributed to predictions."
+      ]
+    },
+    {
+      "id": "movie",
+      "title": "Movie Ticket Booking System",
+      "category": "data",
+      "type": "Databases & application logic",
+      "description": "A relational database project for managing movies, theatres, showtimes, seats, and customer bookings.",
+      "tags": [
+        "MySQL",
+        "SQL",
+        "DBMS"
+      ],
+      "image": "project images/movie ticket.png",
+      "source": "https://github.com/sahildandia/Movie-Ticket-Booking-System",
+      "demo": "",
+      "details": [
+        "Designed tables with appropriate primary keys, foreign keys, and constraints.",
+        "Implemented booking and seat reservation workflows with SQL joins.",
+        "Retrieves booking history and analyzes occupancy patterns with aggregate queries."
+      ]
+    },
+    {
+      "id": "currency",
+      "title": "Currency Exchange Calculator",
+      "category": "web",
+      "type": "Web & utilities",
+      "description": "A practical currency conversion project with a simple HTML and CSS interface.",
+      "tags": [
+        "HTML",
+        "CSS",
+        "Currency conversion"
+      ],
+      "image": "project images/currency exchange rate .png",
+      "source": "https://github.com/sahildandia/currency-exchange-rate-calculator-",
+      "demo": "",
+      "details": [
+        "Converts between currencies through a focused calculator workflow.",
+        "Includes user account setup and access permissions.",
+        "Built as a hands-on project in application logic and interface design."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "degree": "B.E. Computer Science & Engineering",
+      "institution": "M. Kumarasamy College of Engineering",
+      "location": "Karur, Tamil Nadu",
+      "period": "2024 — 2028",
+      "score": "CGPA: 7.7 / 10"
+    }
+  ],
+  "experience": [
+    {
+      "title": "Google Student Ambassador",
+      "company": "Campus developer community",
+      "period": "May 2026 — Present",
+      "description": "Leading workshops on Gemini AI, Google Cloud, and Workspace, and helping fellow students explore tools and ideas."
+    },
+    {
+      "title": "Full Stack Development Intern",
+      "company": "Appex Production · Remote",
+      "period": "15-day internship",
+      "description": "Contributed to software development tasks, implemented project modules, debugged defects, and worked with mentors through structured development and review workflows."
+    },
+    {
+      "title": "Building, exploring, contributing",
+      "company": "Personal projects & open source",
+      "period": "Ongoing",
+      "description": "Putting classroom concepts into practice through database systems, web applications, and explainable computer vision."
+    }
+  ],
+  "certifications": [
+    {
+      "title": "Human Computer Interaction",
+      "issuer": "NPTEL",
+      "url": ""
+    },
+    {
+      "title": "Organizational Behaviour",
+      "issuer": "NPTEL",
+      "url": ""
+    },
+    {
+      "title": "HTML & CSS",
+      "issuer": "GeeksforGeeks",
+      "url": ""
+    },
+    {
+      "title": "Java Programming Masterclass",
+      "issuer": "Udemy",
+      "url": ""
+    },
+    {
+      "title": "Explainable AI",
+      "issuer": "Udemy",
+      "url": ""
+    }
+  ],
+  "settings": {
+    "defaultTheme": "light",
+    "contactHeading": "Have something in mind?",
+    "contactIntro": "Have an idea, an opportunity, or just a question? I’d love to hear from you."
+  }
+}
